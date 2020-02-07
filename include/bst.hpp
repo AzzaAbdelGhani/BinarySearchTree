@@ -24,11 +24,11 @@ class bst{
         std::pair<_iterator, bool> insert(const pair_type& x);
         std::pair<_iterator, bool> insert(pair_type&& x);
 
-        // what if we have an odd number of args?? Possibly exception!
+        // TODO: what if we have an odd number of args?? Possibly exception!
         // probably args should be pairs because in that way we can pass different types of k and v
         // ask SARTORIIII
 
-        // if insert thorows an exception, should emplace throw it too?
+        // TODO: if insert thorows an exception, should emplace throw it too?
         template<class... Types>
         std::pairs<_iterator,bool> emplace(Types&&... args);
 
@@ -36,7 +36,7 @@ class bst{
 
         iterator begin() ;
         const_iterator begin() const;
-        const_iterator cbegin() const; // maybe add cbegin () without const??
+        const_iterator cbegin() const; // TODO: maybe add cbegin () without const??
 
         iterator end();
         const_iterator end() const;
@@ -67,7 +67,7 @@ class bst{
 template <typename T>
 class node {
     T value;
-    // shared??
+    // TODO: shared??
     std::shared_ptr<node> left;
     std::shared_ptr<node> right;
     node* parent; // root point to null pointer
@@ -75,7 +75,7 @@ class node {
     public:
         node(T p): value{p}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
-        ~node(){delete parent; ~left; ~right;}; // TODO delete or delete[] ??
+        ~node(){delete parent; ~left; ~right;}; // TODO: delete or delete[] ??
         using value_type = T;
 };
 
@@ -94,7 +94,7 @@ class _iterator {
         pointer operator->() const noexcept { return &(*(*this)); }
 
         _iterator& operator++() noexcept {  // pre increment
-            current = next(); // TODO
+            current = next(); // TODO:
             return *this;
         }
 
@@ -113,7 +113,7 @@ class _iterator {
         }
 
         _iterator& operator--() noexcept { //pre decrement
-            current = previous(); // TODO
+            current = previous(); // TODO:
             return *this;
         }
 

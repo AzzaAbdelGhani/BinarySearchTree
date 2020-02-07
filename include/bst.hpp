@@ -21,8 +21,8 @@ class bst{
         using iterator = _iterator<node_type, pair_type>;
         using const_iterator = _iterator<node_type, const pair_type>;
 
-        std::pair<_iterator, bool> insert(const pair_type& x);
-        std::pair<_iterator, bool> insert(pair_type&& x);
+        std::pair<iterator, bool> insert(const pair_type& x);
+        std::pair<iterator, bool> insert(pair_type&& x);
 
         // TODO: what if we have an odd number of args?? Possibly exception!
         // probably args should be pairs because in that way we can pass different types of k and v
@@ -30,11 +30,11 @@ class bst{
 
         // TODO: if insert thorows an exception, should emplace throw it too?
         template<class... Types>
-        std::pairs<_iterator,bool> emplace(Types&&... args);
+        std::pairs<iterator,bool> emplace(Types&&... args);
 
         void clear() noexcept;
 
-        iterator begin() ;
+        iterator begin();
         const_iterator begin() const;
         const_iterator cbegin() const; // TODO: maybe add cbegin () without const??
 
@@ -77,6 +77,12 @@ class node {
         node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
         ~node(){delete parent; ~left; ~right;}; // TODO: delete or delete[] ??
         using value_type = T;
+
+        //getters
+        T getValue(){return value;}
+        node* getLeft() const {return left;}
+        node* getRight() const {return right;}
+        node* getParent() const {return parent;}
 };
 
 template <typename node_type, typename T>
@@ -84,13 +90,18 @@ class _iterator {
     node_type* current;
 
     public:
+
+        explicit _iterator(node* x)noexcept : current{x} {};
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
         using iterator_category =std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
 
-        reference operator*() const noexcept { return current->value; }
+        node_type* next() noexcept;
+        node_type* previous() noexcept;
+
+        reference operator*() const noexcept { return current->getValue(); }
         pointer operator->() const noexcept { return &(*(*this)); }
 
         _iterator& operator++() noexcept {  // pre increment

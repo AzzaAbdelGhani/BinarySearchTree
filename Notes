@@ -59,7 +59,7 @@ class _iterator {
 t.insert({1,3})
 t.emplace(1,3)
 
-Balance?????
+Balance???
 store the keys in a std vector.
 take the middle point and insert
 go to the left and take the middle

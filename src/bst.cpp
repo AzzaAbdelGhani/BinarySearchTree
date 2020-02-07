@@ -2,7 +2,7 @@
 
 template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::next() noexcept{
-    if(current.getRight() != nullptr) {
+    if(current->getRight() != nullptr) {
         current = current->getRight();
 
         while(current->getLeft() != nullptr)
@@ -22,7 +22,7 @@ node_type* _iterator<node_type,T>::next() noexcept{
 
 template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::previous() noexcept{
-    if(current.getLeft() != nullptr) {
+    if(current->getLeft() != nullptr) {
         current = current->getLeft();
 
         while(current->getRight() != nullptr)

@@ -81,7 +81,7 @@ class _iterator {
 template <typename k, typename v, typename c = std::less<k> >
 class bst{
     using node_type = node<std::pair<const k,v> >;
-    c op;
+    c op = c();
     std::unique_ptr<node_type> head;
 
     public:

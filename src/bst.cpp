@@ -76,16 +76,16 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
 
 template <typename k, typename v, typename c>
 std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
-    node_type* new_node = nullptr;  
-    node_type* tmp = head ;
-    bool flag = false;
+    
     if (head == nullptr)
     {
-        head = node_type(x);
-        flag = true;
-        iterator M = iterator(head);
-        return(std::pair<M,flag>);
+        head = new node_type(x, nullptr);
+        return(std::make_pair<iterator(head),true>);
     }
+    
+    node_type* new_node = nullptr;  
+    node_type* tmp = head ;
+    
     while (tmp != nullptr)
     {
         new_node = tmp;
@@ -99,14 +99,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
         }  
         else
         {
-             iterator M = iterator();
-             return(std::pair<M,flag>);
+            //if the key is already exist 
+             return(std::make_pair<iterator(),false>);
         }
         
     }
-    tmp = node_type(x, new_node);
-    flag = true;
-    else if (x.first < new_node->getValue().first)
+    tmp = new node_type(x, new_node);
+    if (x.first < new_node->getValue().first)
     { 
         new_node->getLeft() = tmp; 
     }
@@ -114,7 +113,47 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     {
         new_node->getRight() = tmp; 
     }
-  
-    iterator M = iterator(new_node);
-    return(std::pair<M,flag>); 
+    return(std::make_pair<iterator(tmp),true>); 
+}
+
+template <typename k, typename v, typename c>
+std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
+    
+       if (head == nullptr)
+    {
+        head = new node_type(std::move(x), nullptr);
+        return(std::make_pair<iterator(head),true>);
+    }
+    
+    node_type* new_node = nullptr;  
+    node_type* tmp = head ;
+    
+    while (tmp != nullptr)
+    {
+        new_node = tmp;
+        if (x.first < tmp->getValue().first)
+        {
+            tmp = tmp->getLeft();
+        }
+        else if ((x.first > tmp->getValue().first))
+        {
+            tmp = tmp->getRight();
+        }  
+        else
+        {
+            //if the key is already exist 
+             return(std::make_pair<iterator(),false>);
+        }
+        
+    }
+    tmp = new node_type(std::move(x), new_node);
+    if (x.first < new_node->getValue().first)
+    { 
+        new_node->getLeft() = tmp; 
+    }
+    else
+    {
+        new_node->getRight() = tmp; 
+    }
+    return(std::make_pair<iterator(tmp),true>); 
 }

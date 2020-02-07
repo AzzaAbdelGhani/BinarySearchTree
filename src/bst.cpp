@@ -157,3 +157,51 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     }
     return(std::make_pair<iterator(tmp),true>); 
 }
+
+template <typename k, typename v, typename c>
+typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
+    
+    auto it = iterator(head);
+
+    while(it.getCurrent() != nullptr )
+    {
+        if(it.getCurrent().getValue().first < x)
+        {
+            it.getCurrent() = it.getCurrent()->getRight(); 
+        }
+        else if(it.getCurrent().getValue().first > x)
+        {
+            it.getCurrent() = it.getCurrent()->getLeft(); 
+        }
+        else
+        {
+            return(iterator(it));
+        }
+        
+    }
+
+    return end();
+}
+template <typename k, typename v, typename c>
+typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
+        
+    auto it = iterator(head);
+    while(it.getCurrent() != nullptr )
+    {
+        if(it.getCurrent().getValue().first < x)
+        {
+            it.getCurrent() = it.getCurrent()->getRight(); 
+        }
+        else if(it.getCurrent().getValue().first > x)
+        {
+            it.getCurrent() = it.getCurrent()->getLeft(); 
+        }
+        else
+        {
+            return(iterator(it));
+        }
+        
+    }
+
+    return end();
+}

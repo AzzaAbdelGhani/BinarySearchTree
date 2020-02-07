@@ -31,18 +31,16 @@ class node {
 template <typename node_type, typename T>
 class _iterator {
     node_type* current;
+    node_type* next() noexcept;
+    node_type* previous() noexcept;
 
     public:
-
         explicit _iterator(node_type* x)noexcept : current{x} {};
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
         using iterator_category =std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
-
-        node_type* next() noexcept;
-        node_type* previous() noexcept;
 
         reference operator*() const noexcept { return current->getValue(); }
         pointer operator->() const noexcept { return &(*(*this)); }
@@ -51,14 +49,6 @@ class _iterator {
             current = next(); // TODO:
             return *this;
         }
-
-        //next
-        // you check right. if it's not null, you find the minimun of the right subtree
-        // otherwise go to patents unitl greater value
-
-        //left
-        // you check left. if it's not null, you find the maximum of the left subtree
-        // otherwise go to patents unitl lower value
 
         _iterator operator++(int) noexcept {
             _iterator tmp{current};
@@ -84,6 +74,8 @@ class _iterator {
         friend bool operator!=(const _iterator& a, const _iterator& b) {
             return !(a == b);
         }
+
+        node_type* getCurrent() const {return current;}
 };
 
 template <typename k, typename v, typename c = std::less<k> >
@@ -118,9 +110,10 @@ class bst{
         const_iterator begin() const;
         const_iterator cbegin() const; // TODO: maybe add cbegin () without const??
 
-        iterator end();
-        const_iterator end() const;
-        const_iterator cend() const;
+        // TODO: think about const and noexcept
+        iterator end(){return iterator{nullptr}};
+        const_iterator end() const{ return const_iterator{nullptr}};
+        const_iterator cend() const { return const_iterator{nullptr}};
 
         iterator find(const k& x) noexcept;
         const_iterator find(const k& x) const;
@@ -131,7 +124,14 @@ class bst{
         v& operator[](k& x);
 
         friend
-        std::ostream& operator<<(std::ostream& os, const bst& x);
+        std::ostream& operator<<(std::ostream& os, const bst& x){
+            auto it = x.begin();
+            while (it) {
+                os << it.getCurrent() << " ";
+                it++;
+            }
+            return os;
+        }
 
         // copy semantic
         bst(const bst& b); // copy constr
@@ -143,7 +143,4 @@ class bst{
 
         void erase(const k& x);
 };
-
-
-
 #endif

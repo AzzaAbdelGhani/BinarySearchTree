@@ -74,3 +74,47 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
     return it;
 }
 
+template <typename k, typename v, typename c>
+std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
+    node_type* new_node = nullptr;  
+    node_type* tmp = head ;
+    bool flag = false;
+    if (head == nullptr)
+    {
+        head = node_type(x);
+        flag = true;
+        iterator M = iterator(head);
+        return(std::pair<M,flag>);
+    }
+    while (tmp != nullptr)
+    {
+        new_node = tmp;
+        if (x.first < tmp->getValue().first)
+        {
+            tmp = tmp->getLeft();
+        }
+        else if ((x.first > tmp->getValue().first))
+        {
+            tmp = tmp->getRight();
+        }  
+        else
+        {
+             iterator M = iterator();
+             return(std::pair<M,flag>);
+        }
+        
+    }
+    tmp = node_type(x, new_node);
+    flag = true;
+    else if (x.first < new_node->getValue().first)
+    { 
+        new_node->getLeft() = tmp; 
+    }
+    else
+    {
+        new_node->getRight() = tmp; 
+    }
+  
+    iterator M = iterator(new_node);
+    return(std::pair<M,flag>); 
+}

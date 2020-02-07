@@ -111,9 +111,9 @@ class bst{
         const_iterator cbegin() const; // TODO: maybe add cbegin () without const??
 
         // TODO: think about const and noexcept
-        iterator end(){return iterator{nullptr}};
-        const_iterator end() const{ return const_iterator{nullptr}};
-        const_iterator cend() const { return const_iterator{nullptr}};
+        iterator end(){return iterator{nullptr};}
+        const_iterator end() const{ return const_iterator{nullptr};}
+        const_iterator cend() const { return const_iterator{nullptr};}
 
         iterator find(const k& x) noexcept;
         const_iterator find(const k& x) const;
@@ -126,7 +126,8 @@ class bst{
         friend
         std::ostream& operator<<(std::ostream& os, const bst& x){
             auto it = x.begin();
-            while (it) {
+            //FIXED: could not convert ‘it’ to bool
+            while (it != x.end()) {
                 os << it.getCurrent() << " ";
                 it++;
             }

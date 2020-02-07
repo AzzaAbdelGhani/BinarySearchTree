@@ -44,29 +44,6 @@ node_type* _iterator<node_type,T>::previous() noexcept{
 template <typename k, typename v, typename c>
 bst<k,v,c>::iterator bst<k,v,c>::begin(){
 
-    it = iterator(head);
-    while( it.current->getLeft() != nullptr)
-        it.current = it.current->getLeft()
-    
-    return it;
-    
-}
-
-template <typename k, typename v, typename c>
-bst<k,v,c>::iterator bst<k,v,c>::begin(){
-
-    auto it = iterator(head);
-    while( it.getCurrent()->getLeft() != nullptr)
-        it.getCurrent() = it.getCurrent()->getLeft()
-    
-    return it;
-    
-}
-
-
-template <typename k, typename v, typename c>
-bst<k,v,c>::iterator bst<k,v,c>::begin(){
-
     auto it = iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
         it.getCurrent() = it.getCurrent()->getLeft()

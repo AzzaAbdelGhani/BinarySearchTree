@@ -97,3 +97,134 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
     return it;
 }
 
+template <typename k, typename v, typename c>
+std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
+    
+    if (head == nullptr)
+    {
+        head = new node_type(x, nullptr);
+        return(std::make_pair<iterator(head),true>);
+    }
+    
+    node_type* new_node = nullptr;  
+    node_type* tmp = head ;
+    
+    while (tmp != nullptr)
+    {
+        new_node = tmp;
+        if (x.first < tmp->getValue().first)
+        {
+            tmp = tmp->getLeft();
+        }
+        else if ((x.first > tmp->getValue().first))
+        {
+            tmp = tmp->getRight();
+        }  
+        else
+        {
+            //if the key is already exist 
+             return(std::make_pair<iterator(),false>);
+        }
+        
+    }
+    tmp = new node_type(x, new_node);
+    if (x.first < new_node->getValue().first)
+    { 
+        new_node->getLeft() = tmp; 
+    }
+    else
+    {
+        new_node->getRight() = tmp; 
+    }
+    return(std::make_pair<iterator(tmp),true>); 
+}
+
+template <typename k, typename v, typename c>
+std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
+    
+       if (head == nullptr)
+    {
+        head = new node_type(std::move(x), nullptr);
+        return(std::make_pair<iterator(head),true>);
+    }
+    
+    node_type* new_node = nullptr;  
+    node_type* tmp = head ;
+    
+    while (tmp != nullptr)
+    {
+        new_node = tmp;
+        if (x.first < tmp->getValue().first)
+        {
+            tmp = tmp->getLeft();
+        }
+        else if ((x.first > tmp->getValue().first))
+        {
+            tmp = tmp->getRight();
+        }  
+        else
+        {
+            //if the key is already exist 
+             return(std::make_pair<iterator(),false>);
+        }
+        
+    }
+    tmp = new node_type(std::move(x), new_node);
+    if (x.first < new_node->getValue().first)
+    { 
+        new_node->getLeft() = tmp; 
+    }
+    else
+    {
+        new_node->getRight() = tmp; 
+    }
+    return(std::make_pair<iterator(tmp),true>); 
+}
+
+template <typename k, typename v, typename c>
+typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
+    
+    auto it = iterator(head);
+
+    while(it.getCurrent() != nullptr )
+    {
+        if(it.getCurrent().getValue().first < x)
+        {
+            it.getCurrent() = it.getCurrent()->getRight(); 
+        }
+        else if(it.getCurrent().getValue().first > x)
+        {
+            it.getCurrent() = it.getCurrent()->getLeft(); 
+        }
+        else
+        {
+            return(iterator(it));
+        }
+        
+    }
+
+    return end();
+}
+template <typename k, typename v, typename c>
+typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
+        
+    auto it = iterator(head);
+    while(it.getCurrent() != nullptr )
+    {
+        if(it.getCurrent().getValue().first < x)
+        {
+            it.getCurrent() = it.getCurrent()->getRight(); 
+        }
+        else if(it.getCurrent().getValue().first > x)
+        {
+            it.getCurrent() = it.getCurrent()->getLeft(); 
+        }
+        else
+        {
+            return(iterator(it));
+        }
+        
+    }
+
+    return end();
+}

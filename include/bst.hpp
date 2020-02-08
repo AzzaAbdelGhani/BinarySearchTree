@@ -13,14 +13,17 @@ class node {
     // TODO: For now we are going to use raw pointers, cause it's easier to traverse the tree
     node* left;
     node* right;
-    node* parent; // root point to null pointer
+    node* parent; // root points to null pointer
 
     public:
         node(T p): value{p}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
-        ~node(){delete parent, delete left, delete right;}; 
+        ~node(){
+            delete left;
+            delete right;
+        }
         using value_type = T;
 
         //getters
@@ -99,9 +102,9 @@ class bst{
     node_type* head;
 
     public:
-        bst(c comp): op{comp} {};
+        bst(c comp): op{comp}, head{nullptr} {};
         bst(k key, v value, c comp): op{comp}, head{new node_type(std::pair<k,v>(key,value))} {};
-
+        ~bst() { delete head; }
 
         using pair_type = typename node_type::value_type;
         using iterator = _iterator<node_type, pair_type>;
@@ -247,6 +250,9 @@ void bst<k,v,c>::clear() noexcept{
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::iterator bst<k,v,c>::begin(){
 
+    if(head == nullptr)
+        return iterator(nullptr);
+    
     auto it = iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());
@@ -256,6 +262,9 @@ typename bst<k,v,c>::iterator bst<k,v,c>::begin(){
 
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
+
+    if(head == nullptr)
+        return const_iterator(nullptr);
 
     auto it = const_iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
@@ -268,6 +277,9 @@ template <typename k, typename v, typename c>
 typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
 
     //TODO: maybe just call begin here
+    if(head == nullptr)
+        return const_iterator(nullptr);
+
     auto it = const_iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());

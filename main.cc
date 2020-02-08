@@ -14,6 +14,7 @@ int main(){
     // t.insert({2,54});
 
     std::cout<< t << std::endl;
+    t.find({2});
 
     // bst<int, int, std::less<int>> st{std::less<int>()};
 

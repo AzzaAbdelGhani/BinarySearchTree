@@ -7,12 +7,14 @@ all: $(EXE)
 %.o: %.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
-$(EXE): main.o src/bst.o 
+$(EXE): main.o #src/bst.o 
 	$(CXX) $^ -o $(EXE) 
 
-main.o: src/bst.o
+main.o: include/bst.hpp
 
-src/bst.o: include/bst.hpp
+#main.o: src/bst.o include/bst.hpp
+
+#src/bst.o: include/bst.hpp
 
 clean:
 	rm -rf src/*.o *.o $(EXE) */*~ *~ a.out*

@@ -1,6 +1,6 @@
 CXX = g++
 EXE = bst
-CXXFLAGS = -I include -std=c++14
+CXXFLAGS = -I include -std=c++14 -Wall -Wextra -g
 
 all: $(EXE)
 

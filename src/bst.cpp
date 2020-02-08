@@ -1,5 +1,12 @@
 #include <bst.hpp>
 
+////////////////////////////////
+/////                     //////
+/////  ITERATOR FUNCTIONS //////
+/////                     //////
+////////////////////////////////
+
+
 //Iterator functions
 template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::next() noexcept{
@@ -42,6 +49,22 @@ node_type* _iterator<node_type,T>::previous() noexcept{
     }
     return current;
 }
+
+///////////////////////////
+/////                //////
+/////  BST FUNCTIONS //////
+/////                //////
+///////////////////////////
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::clear() noexcept{
+
+    //(Fra)TODO: I am confused, should this just call a node destructor?
+    //Azza says: let's do a function that checks if a node is a leaf: then prune it!
+
+        
+}
+
 
 //The first element of the bst is the leftmost element of the tree
 template <typename k, typename v, typename c>

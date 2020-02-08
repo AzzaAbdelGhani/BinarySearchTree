@@ -24,7 +24,6 @@
         "cmath": "cpp",
         "complex": "cpp",
         "condition_variable": "cpp",
-        "C_Cpp.errorSquiggles" : "Enabled",
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdint": "cpp",

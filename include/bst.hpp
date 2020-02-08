@@ -18,7 +18,8 @@ class node {
     public:
         node(T p): value{p}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
-        ~node(){delete parent;}; // TODO: take care of shared pointers
+        // TODO: take care of shared pointers
+        ~node(){delete parent;}; 
         using value_type = T;
 
         //getters
@@ -46,7 +47,7 @@ class _iterator {
         pointer operator->() const noexcept { return &(*(*this)); }
 
         _iterator& operator++() noexcept {  // pre increment
-            current = next(); // TODO:
+            current = next();
             return *this;
         }
 
@@ -57,7 +58,7 @@ class _iterator {
         }
 
         _iterator& operator--() noexcept { //pre decrement
-            current = previous(); // TODO:
+            current = previous();
             return *this;
         }
 
@@ -99,29 +100,38 @@ class bst{
         // TODO: what if we have an odd number of args?? Possibly exception!
         // probably args should be pairs because in that way we can pass different types of k and v
         // ask SARTORIIII
-
         // TODO: if insert thorows an exception, should emplace throw it too?
+        // TODO: to implement
         template<class... Types>
-        std::pair<iterator,bool> emplace(Types&&... args);
+        std::pair<iterator,bool> emplace(Types&&... args); 
 
-        void clear() noexcept;
+        //TODO: to implement
+        void clear() noexcept; 
 
+        //TODO: Shall these be noexcept?
         iterator begin();
         const_iterator begin() const;
-        const_iterator cbegin() const; // TODO: maybe add cbegin () without const??
+        // TODO: maybe add cbegin () without const??
+        const_iterator cbegin() const; 
 
-        // TODO: think about const and noexcept
+        // TODO: think about const and noexcept here
         iterator end(){return iterator{nullptr};}
         const_iterator end() const{ return const_iterator{nullptr};}
         const_iterator cend() const { return const_iterator{nullptr};}
 
-        iterator find(const k& x) noexcept;
-        const_iterator find(const k& x) const;
+        //TODO: to implement
+        iterator find(const k& x) noexcept; 
 
-        void balance();
+        //TODO: to implement
+        const_iterator find(const k& x) const; 
 
-        v& operator[](const k& x);
-        v& operator[](k& x);
+        //TODO: to implement
+        void balance(); 
+
+        //TODO: to implement
+        v& operator[](const k& x); 
+        //TODO: to implement
+        v& operator[](k& x); 
 
         friend
         std::ostream& operator<<(std::ostream& os, const bst& x){
@@ -135,13 +145,18 @@ class bst{
         }
 
         // copy semantic
-        bst(const bst& b); // copy constr
-        bst& operator=(const bst& b); //copy assign
+        //TODO: to implement
+        bst(const bst& b); // copy constr 
+        //TODO: to implement
+        bst& operator=(const bst& b); //copy assign 
 
         // move semantic
-        bst(const bst&& b) noexcept; // move constr
-        bst& operator=(const bst&& b) noexcept; //move assign
+        //TODO: to implement
+        bst(const bst&& b) noexcept; // move constr 
+        //TODO: to implement
+        bst& operator=(const bst&& b) noexcept; //move assign 
 
-        void erase(const k& x);
+        //TODO: to implement
+        void erase(const k& x); 
 };
 #endif

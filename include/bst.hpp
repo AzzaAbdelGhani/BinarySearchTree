@@ -11,8 +11,8 @@ template <typename T>
 class node {
     T value;
     // TODO: shared??
-    std::shared_ptr<node> left;
-    std::shared_ptr<node> right;
+    std::unique_ptr<node> left;
+    std::unique_ptr<node> right;
     node* parent; // root point to null pointer
 
     public:

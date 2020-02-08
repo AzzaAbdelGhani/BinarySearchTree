@@ -156,7 +156,7 @@ class bst{
             while (it != x.end()) {
                 // os << it.getCurrent()->getValue().first << " ";
                 os << (*it).second << " ";
-                it++;
+                ++it;
             }
             return os;
         }
@@ -192,19 +192,24 @@ template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::next() noexcept{
     if(current->getRight() != nullptr) {
         current = current->getRight();
-
+        std::cout << "Current right value: " << current->getRight()->getValue().first << std::endl;
         while(current->getLeft() != nullptr)
             current = current->getLeft();
     } else {
+        std::cout << "Hi I am on the else" << std::endl;
         if(current->getParent() == nullptr){
             return nullptr;
         }
         // TODO: we would need to use a compare operator
         while(current->getParent()->getValue().first < current->getValue().first){
             current = current->getParent();
+            std::cout << "Current_Value: " << current->getValue().first << std::endl;
             if(current->getParent() == nullptr)
-                return nullptr;
+                //return nullptr;
+                break;
         }
+
+        current = current->getParent();
     }
     return current;
 }

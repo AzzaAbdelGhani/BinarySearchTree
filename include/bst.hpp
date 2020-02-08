@@ -10,9 +10,9 @@
 template <typename T>
 class node {
     T value;
-    // TODO: shared??
-    std::unique_ptr<node> left;
-    std::unique_ptr<node> right;
+    // TODO: For now we are going to use raw pointers, cause it's easier to traverse the tree
+    node* left;
+    node* right;
     node* parent; // root point to null pointer
 
     public:
@@ -20,15 +20,20 @@ class node {
         node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
-        // TODO: take care of shared pointers
-        ~node(){delete parent;}; 
+        ~node(){delete parent, delete left, delete right;}; 
         using value_type = T;
 
         //getters
-        T getValue(){return value;}
+        //TODO: Should we return a value or a reference to the value? 
+        T& getValue(){ return value;}
         node* getLeft() const {return left;}
         node* getRight() const {return right;}
         node* getParent() const {return parent;}
+
+        //setters
+        void setLeft(node* x) { left = x; }
+        void setRight(node* x) { right = x; }
+        void setParent(node* x) { parent = x; }
 };
 
 template <typename node_type, typename T>
@@ -38,8 +43,8 @@ class _iterator {
     node_type* previous() noexcept;
 
     public:
+        _iterator() noexcept: current{nullptr} {};
         explicit _iterator(node_type* x) noexcept : current{x} {};
-        explicit _iterator(std::unique_ptr<node_type> x) noexcept : current{x} {};
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
@@ -79,20 +84,25 @@ class _iterator {
             return !(a == b);
         }
 
+        //getter
         node_type* getCurrent() const {return current;}
+
+        //setter
+        void setCurrent(node_type* x) { current = x;}
 };
 
 template <typename k, typename v, typename c = std::less<k> >
 class bst{
     using node_type = node<std::pair<const k,v> >;
     c op = c();
-    std::unique_ptr<node_type> head;
+    //TODO: Head for now is a raw pointer, same reason for left and right
+    node_type* head;
 
     public:
         bst(c comp): op{comp} {};
-        bst(k key, v value, c comp): head{std::make_unique<node_type>(node_type(std::pair<k,v>(key,value)))}, op{comp} {};
+        bst(k key, v value, c comp): op{comp}, head{new node_type(std::pair<k,v>(key,value))} {};
 
-        
+
         using pair_type = typename node_type::value_type;
         using iterator = _iterator<node_type, pair_type>;
         using const_iterator = _iterator<node_type, const pair_type>;
@@ -141,7 +151,8 @@ class bst{
             auto it = x.begin();
             //FIXED: could not convert ‘it’ to bool
             while (it != x.end()) {
-                os << it.getCurrent() << " ";
+                // os << it.getCurrent()->getValue().first << " ";
+                os << (*it).second << " ";
                 it++;
             }
             return os;
@@ -238,7 +249,7 @@ typename bst<k,v,c>::iterator bst<k,v,c>::begin(){
 
     auto it = iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
-        it.getCurrent() = it.getCurrent()->getLeft();
+        it.setCurrent(it.getCurrent()->getLeft());
     
     return it;   
 }
@@ -248,7 +259,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
 
     auto it = const_iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
-        it.getCurrent() = it.getCurrent()->getLeft();
+        it.setCurrent(it.getCurrent()->getLeft());
     
     return it;
 }
@@ -256,9 +267,10 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
 
+    //TODO: maybe just call begin here
     auto it = const_iterator(head);
     while( it.getCurrent()->getLeft() != nullptr)
-        it.getCurrent() = it.getCurrent()->getLeft();
+        it.setCurrent(it.getCurrent()->getLeft());
     
     return it;
 }
@@ -269,7 +281,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     if (head == nullptr)
     {
         head = new node_type(x, nullptr);
-        return(std::pair<iterator,bool> (iterator(head),true));
+        return(std::make_pair(iterator(head),true));
     }
     
     node_type* new_node = nullptr;  
@@ -289,7 +301,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
         else
         {
             //if the key is already exist 
-             return(std::pair<iterator, bool> (iterator(),false));
+             return(std::make_pair(iterator(),false));
         }
         
     }
@@ -302,7 +314,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     {
         new_node->getRight() = tmp; 
     }
-    return(std::make_pair<iterator(tmp),true>); 
+    return(std::make_pair(iterator(tmp),true)); 
 }
 
 template <typename k, typename v, typename c>
@@ -311,11 +323,8 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     if (head == nullptr)
     {
         //head = new node_type(std::move(x), nullptr);
-        head = std::make_unique<node_type>(node_type(x, nullptr));
-        //return(std::make_pair(std::move(iterator(head)),true));
-
-        // head = std::make_unique<node_type>(std::move(x), nullptr);
-        // return(std::make_pair(iterator(head),true));
+        head = new node_type(std::move(x), nullptr);
+        return(std::make_pair(iterator(head),true));
     }
     
     node_type* new_node = nullptr;  
@@ -342,13 +351,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     tmp = new node_type(std::move(x), new_node);
     if (x.first < new_node->getValue().first)
     { 
-        new_node->getLeft() = tmp; 
+        new_node->setLeft(tmp); 
     }
     else
     {
-        new_node->getRight() = tmp; 
+        new_node->setRight(tmp);
     }
-    return(std::make_pair<iterator(tmp),true>); 
+    return(std::make_pair(iterator(tmp),true)); 
 }
 
 template <typename k, typename v, typename c>

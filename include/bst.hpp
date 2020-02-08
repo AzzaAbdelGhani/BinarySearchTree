@@ -132,11 +132,19 @@ class bst{
         const_iterator end() const{ return const_iterator{nullptr};}
         const_iterator cend() const { return const_iterator{nullptr};}
 
-        //TODO: to implement
+        
         iterator find(const k& x) noexcept; 
-
-        //TODO: to implement
         const_iterator find(const k& x) const; 
+
+        //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECH FIND FUNCTION 
+        void isThere(const k& key){
+
+            iterator result; 
+            result = find(key);
+            if(result == end()) std::cout<<"NOT FOUND"<<std::endl;
+            else std::cout<<"FOUND"<<std::endl;
+        }
+
 
         //TODO: to implement
         void balance(); 
@@ -308,11 +316,11 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     tmp = new node_type(x, new_node);
     if (x.first < new_node->getValue().first)
     { 
-        new_node->getLeft() = tmp; 
+        new_node->setLeft(tmp); 
     }
     else
     {
-        new_node->getRight() = tmp; 
+        new_node->setRight(tmp); 
     }
      
     return(std::make_pair(iterator(tmp),true)); 
@@ -338,7 +346,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
         {
             tmp = tmp->getLeft();
         }
-        else if ((x.first > tmp->getValue().first))
+        else if (x.first > tmp->getValue().first)
         {
             tmp = tmp->getRight();
         }  

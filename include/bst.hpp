@@ -124,24 +124,20 @@ class bst{
         //TODO: to implement
         void clear() noexcept; 
 
-        //TODO: Shall these be noexcept?
-        iterator begin();
-        const_iterator begin() const;
+        iterator begin() noexcept;
+        const_iterator begin() const noexcept;
         // TODO: maybe add cbegin () without const??
-        const_iterator cbegin() const; 
+        const_iterator cbegin() const noexcept; 
 
-        // TODO: think about const and noexcept here
-        iterator end(){return iterator{nullptr};}
-        const_iterator end() const{ return const_iterator{nullptr};}
-        const_iterator cend() const { return const_iterator{nullptr};}
+        iterator end() noexcept {return iterator{nullptr};}
+        const_iterator end() const noexcept { return const_iterator{nullptr};}
+        const_iterator cend() const noexcept { return const_iterator{nullptr};}
 
-        
         iterator find(const k& x) noexcept; 
         const_iterator find(const k& x) const; 
 
         //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECH FIND FUNCTION 
         void isThere(const k& key){
-
             iterator result; 
             result = find(key);
             if(result == end()) std::cout<<"NOT FOUND"<<std::endl;
@@ -258,7 +254,7 @@ void bst<k,v,c>::clear() noexcept{
 
 //The first element of the bst is the leftmost element of the tree
 template <typename k, typename v, typename c>
-typename bst<k,v,c>::iterator bst<k,v,c>::begin(){
+typename bst<k,v,c>::iterator bst<k,v,c>::begin() noexcept {
 
     if(head == nullptr)
         return iterator(nullptr);
@@ -271,7 +267,7 @@ typename bst<k,v,c>::iterator bst<k,v,c>::begin(){
 }
 
 template <typename k, typename v, typename c>
-typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
+typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const noexcept {
 
     if(head == nullptr)
         return const_iterator(nullptr);
@@ -284,7 +280,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
 }
 
 template <typename k, typename v, typename c>
-typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
+typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const noexcept{
 
     //TODO: maybe just call begin here
     if(head == nullptr)

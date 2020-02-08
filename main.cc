@@ -22,6 +22,8 @@ int main(){
     //FIXME: --t.end does not work
     //std::cout << (*(--t.end())).second << std::endl;
     // std::cout<< t << std::endl;
+    std::cout<< t << std::endl;
+    t.isThere({9});
 
     // //Constructor without head: insert should create the head: WORKS
     // bst<int, int, std::less<int>> abba{1,1,std::less<int>()};

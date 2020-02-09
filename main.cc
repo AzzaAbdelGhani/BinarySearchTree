@@ -4,7 +4,7 @@ int main(){
 
     //Constructor with head
     //bst<int, int, std::less<int>> t{std::less<int>()};
-    bst<int, int, std::less<int>> t{8,8,std::less<int>()};
+    bst<int, int, std::less<int>> t{1,1,std::less<int>()};
 
     //TODO: for debugging purposes, let's just stick with key=value (just like Alberto)
     // t.insert({2,2});
@@ -13,7 +13,7 @@ int main(){
     t.insert({6,6});
     // std::cout<< t << std::endl;
     std::cout << t << std::endl;
-    t.isThere({9});
+    //t.isThere({9});
 
     // //Constructor without head: insert should create the head: WORKS
     // bst<int, int, std::less<int>> abba{1,1,std::less<int>()};
@@ -22,7 +22,7 @@ int main(){
 
     // //Construct S.A.R.T.O.R.I. (Something abstract related to our recursive implementation)
     bst<int, int, std::less<int>> sartori{8,8,std::less<int>()};
-    sartori.insert({3,3}); //FIXME: something wrong when you go to the left
+    sartori.insert({3,3});
     sartori.insert({6,6});
     sartori.insert({1,1});
     sartori.insert({10,10});
@@ -30,10 +30,30 @@ int main(){
     sartori.insert({14,14});
     sartori.insert({4,4});
     sartori.insert({13,13});
+
+    std::cout << "Sartori" << std::endl;
     std::cout<< sartori << std::endl;
 
+    std::cout << sartori[3] << std::endl;
+    //std::cout << sartori[60] << std::endl;
+    //std::cout<< sartori << std::endl;
+
+    //Copy constructor test-case
+    bst<int, int, std::less<int>> sartoriBis{sartori};
+    std::cout << "Sartori bis" << std::endl;
+    std::cout<< sartoriBis << std::endl;
+    sartoriBis.isThere(8);
+
+    sartoriBis.insert({5,5});
+    std::cout << "SartoriBis after insert on sartoriBis" << std::endl;
+    std::cout<< sartoriBis << std::endl;
+
+    std::cout << "Sartori after insert on sartoriBis" << std::endl;
+    std::cout<< sartori << std::endl;
+
+    sartori.find(8);
+    std::cout<< sartori << std::endl;
 
     return 0;
-
 }
 

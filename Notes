@@ -110,3 +110,7 @@ the same const_iterator?
 
 2. In the subscripting operator we should insert a node if the key doesn't exist. Which value do we have to insert? Input from terminal?
 
+3. Why do we actually need to specify std::move on a parameter passed already as a rvalue reference 
+    (see line 18 of as_linked_list.cc, lesson 8)
+
+4. Alberto, why are you using that many templates in the linked list example? 

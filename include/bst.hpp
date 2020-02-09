@@ -17,14 +17,33 @@ class node {
     public:
         node(T p): value{p}, parent{nullptr} {};
         node(T p, node* n): value{p}, parent{n} {};
+        //Explicit node copy constructor
+        explicit node(const std::unique_ptr<node> &p, node* parent): value{p->value}{
+            this->parent = parent;
+            if(p->right)
+                right = std::make_unique<node>(p->right, this); //We need *this in order to copy the parent
+            if(p->left)
+                left = std::make_unique<node>(p->left, this);
+        }
+
+        // //This is wrong: does not copy parent
+        // explicit node(const std::unique_ptr<node> &p): value{p->value}{
+        //     if(p->right)
+        //         right = std::make_unique<node>(p->right); //We need *this in order to copy the parent
+        //     if(p->left)
+        //         left = std::make_unique<node>(p->left);
+        // } //TODO: value or getValue()
+        
+
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         ~node() {}
         using value_type = T;
 
         //getters
-        //TODO: Should we return a value or a reference to the value? 
-        T& getValue(){ return value;}
+        //TODO: Should we return a value or a reference to the value? Does this mean we can actually
+        //Modify the value of the node? 
+        T& getValue() { return value;}
         node* getLeft() const {return left.get();}
         node* getRight() const {return right.get();}
         node* getParent() const {return parent;}
@@ -51,7 +70,18 @@ class _iterator {
         using iterator_category =std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
 
-        reference operator*() const noexcept { return current->getValue(); }
+        //BIGTODO: How the hell is this actually working? 
+        //Actually a random super good guy said this is compiler doing its things under curtains
+        //"But it's still bad, don't do it"
+        // reference operator*() const noexcept { 
+        //     value_type d = current->getValue();
+        //     value_type &ref = d;
+        //     return ref; 
+        // }
+        reference operator*() const noexcept { 
+            return(current->getValue());
+        }
+        
         pointer operator->() const noexcept { return &(*(*this)); }
 
         _iterator& operator++() noexcept {  // pre increment
@@ -94,14 +124,15 @@ class _iterator {
 template <typename k, typename v, typename c = std::less<k> >
 class bst{
     using node_type = node<std::pair<const k,v> >;
-    c op = c();
+    c op;
     std::unique_ptr<node_type> head;
 
     public:
+        bst(): op{c()}, head{nullptr} {};
         bst(c comp): op{comp}, head{nullptr} {};
         bst(k key, v value, c comp): op{comp}, head{ std::make_unique<node_type>(std::pair<k,v>(key,value))} {};
-        bst(const bst &b) {};
-        
+
+        //bst& operator=(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
         //~bst() { delete head; }
 
         using pair_type = typename node_type::value_type;
@@ -161,14 +192,14 @@ class bst{
         }
 
         v& operator[](k&& x){
-            iterator it = find(x);
+            iterator it = find(std::move(x));
             if(it != end())
                 return (*it).second;
             else {
                 std::cout << "The key does not exist. Insert a value for the new node\n";
                 v inValue;
                 std::cin >> inValue;
-                auto p = insert({x,inValue});
+                auto p = insert({std::move(x),inValue});
                 return (*(p.first)).second;
             }
         }
@@ -184,8 +215,11 @@ class bst{
         }
 
         // copy semantic
-        //TODO: to implement
-        bst(const bst& b); // copy constr 
+        // copy constr 
+        //bst(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
+        bst(const bst &b): op{b.op} { 
+            head = std::make_unique<node_type>(b.head,nullptr);
+        }
         //TODO: to implement
         bst& operator=(const bst& b); //copy assign 
 
@@ -402,6 +436,7 @@ typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
             it.setCurrent(it.getCurrent()->getLeft()); 
         }
         else{
+            //it.getCurrent()->getValue() = std::make_pair(9,9);
             return(iterator(it));
         }   
     }

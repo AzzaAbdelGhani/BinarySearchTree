@@ -4,7 +4,7 @@ int main(){
 
     //Constructor with head
     //bst<int, int, std::less<int>> t{std::less<int>()};
-    bst<int, int, std::less<int>> t{8,8,std::less<int>()};
+    bst<int, int, std::less<int>> t{1,1,std::less<int>()};
 
     //TODO: for debugging purposes, let's just stick with key=value (just like Alberto)
     // t.insert({2,2});
@@ -30,10 +30,28 @@ int main(){
     sartori.insert({14,14});
     sartori.insert({4,4});
     sartori.insert({13,13});
+
+    std::cout << "Sartori" << std::endl;
     std::cout<< sartori << std::endl;
 
     std::cout << sartori[3] << std::endl;
-    std::cout << sartori[60] << std::endl;
+    //std::cout << sartori[60] << std::endl;
+    //std::cout<< sartori << std::endl;
+
+    //Copy constructor test-case
+    bst<int, int, std::less<int>> sartoriBis{sartori};
+    std::cout << "Sartori bis" << std::endl;
+    std::cout<< sartoriBis << std::endl;
+    sartoriBis.isThere(8);
+
+    sartoriBis.insert({5,5});
+    std::cout << "SartoriBis after insert on sartoriBis" << std::endl;
+    std::cout<< sartoriBis << std::endl;
+
+    std::cout << "Sartori after insert on sartoriBis" << std::endl;
+    std::cout<< sartori << std::endl;
+
+    sartori.find(8);
     std::cout<< sartori << std::endl;
 
     return 0;

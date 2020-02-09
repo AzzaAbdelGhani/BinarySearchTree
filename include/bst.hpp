@@ -214,19 +214,21 @@ class bst{
 
         // copy semantic
         // copy constr 
-        //bst(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
         bst(const bst &b): op{b.op} { 
             head = std::make_unique<node_type>(b.head,nullptr);
         }
-        //TODO: to implement
-        bst& operator=(const bst& b); //copy assign 
+        //copy assignment, TODO: is there space to optimize this by calling the copy constructor?
+        bst& operator=(const bst& b){
+            this->clear();
+            op = b.op;
+            head = std::make_unique<node_type>(b.head,nullptr);
+            return *this;
+        } 
 
         // move semantic
-
-        //TODO: to implement
-        bst(const bst&& b) noexcept; // move constr 
-        //TODO: to implement
-        bst& operator=(const bst&& b) noexcept; //move assign 
+        // move constr 
+        bst(bst&& b) noexcept = default; //This actually works
+        bst& operator=(bst&& b) noexcept = default; //move assignment
 
         //TODO: to implement
         void erase(const k& x); 
@@ -289,15 +291,6 @@ node_type* _iterator<node_type,T>::previous() noexcept{
 /////  BST FUNCTIONS //////
 /////                //////
 ///////////////////////////
-
-template <typename k, typename v, typename c>
-void bst<k,v,c>::clear() noexcept{
-
-    //(Fra)TODO: I am confused, should this just call a node destructor?
-    //Azza says: let's do a function that checks if a node is a leaf: then prune it!
-
-        
-}
 
 //The first element of the bst is the leftmost element of the tree
 template <typename k, typename v, typename c>
@@ -457,6 +450,12 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
         }  
     }
     return end();
+}
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::clear() noexcept {
+    if(head)
+        head.reset();
 }
 
 #endif

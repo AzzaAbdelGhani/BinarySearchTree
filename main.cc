@@ -51,8 +51,35 @@ int main(){
     std::cout << "Sartori after insert on sartoriBis" << std::endl;
     std::cout<< sartori << std::endl;
 
-    sartori.find(8);
-    std::cout<< sartori << std::endl;
+    //Clear test
+
+    std::cout << "t after t.clear()" << std::endl;
+    t.clear();
+    std::cout<< t << std::endl;
+
+    //Copy assignment test
+
+    std::cout << "sartoriBis after sartoriBis = sartori " << std::endl;
+    sartoriBis = sartori;
+    std::cout << sartoriBis << std::endl;
+
+    //Move constructor test
+
+    std::cout << "sartoriTris after sartoriTris{std::move(sartoriBis)}" << std::endl;
+    bst<int,int,std::less<int>> sartoriTris{std::move(sartoriBis)};
+    std::cout << sartoriTris << std::endl;
+    
+    std::cout << "sartoriBis after sartoriTris{std::move(sartoriBis)} ? " << std::endl;
+    std::cout << sartoriBis << std::endl;
+
+    //Move assignment test
+
+    std::cout << "sartoriBis after sartoriBis = std::move(sartoriTris)" << std::endl;
+    sartoriBis = std::move(sartoriTris);
+    std::cout << sartoriBis << std::endl;
+    
+    std::cout << "sartoriTris after sartoriBis = std::move(sartoriTris) ? " << std::endl;
+    std::cout << sartoriTris << std::endl;
 
     return 0;
 }

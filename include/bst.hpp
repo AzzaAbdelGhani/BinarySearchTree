@@ -18,7 +18,7 @@ class node {
     public:
         node(T p): value{p}, parent{nullptr} {};
         node(T p, node* n): value{p}, parent{n} {};
-        node(node* x);
+        //node(node* x);
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         ~node() {}
@@ -103,6 +103,8 @@ class bst{
     public:
         bst(c comp): op{comp}, head{nullptr} {};
         bst(k key, v value, c comp): op{comp}, head{ std::make_unique<node_type>(std::pair<k,v>(key,value))} {};
+        bst(const bst &b) {};
+        
         //~bst() { delete head; }
 
         using pair_type = typename node_type::value_type;

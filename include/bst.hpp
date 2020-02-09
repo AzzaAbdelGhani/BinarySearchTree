@@ -18,6 +18,7 @@ class node {
     public:
         node(T p): value{p}, parent{nullptr} {};
         node(T p, node* n): value{p}, parent{n} {};
+        node(node* x);
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         ~node() {}
@@ -31,8 +32,8 @@ class node {
         node* getParent() const {return parent;}
 
         //setters
-        void setLeft(node* x) { left = std::make_unique<node>(x, left.release()); }
-        void setRight(node* x) { right = std::make_unique<node>(x, left.release()); }
+        void setLeft(node* x) { left.reset(x); }
+        void setRight(node* x) { right.reset(x); }
         void setParent(node* x) { parent = x; }
 };
 
@@ -369,7 +370,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
         }
         
     }
-    //tmp = new node_type(std::move(x), new_node);
+    tmp = new node_type(std::move(x), new_node);
     if (x.first < new_node->getValue().first)
     { 
         new_node->setLeft(tmp); 

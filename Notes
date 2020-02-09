@@ -96,3 +96,15 @@ class bst {
 #endif
 #include "functions_bst.hpp"
 
+
+
+###################################
+#                                 #
+#       QUESTIONS                 #
+#                                 #
+###################################
+
+
+1. Why is cbegin operating on const? Shouldn't it be operating also on non-const bsts and yield
+the same const_iterator?
+

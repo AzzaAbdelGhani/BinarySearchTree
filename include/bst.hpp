@@ -458,4 +458,18 @@ void bst<k,v,c>::clear() noexcept {
         head.reset();
 }
 
+// template<class... Types>
+// std::pair<iterator,bool> emplace(Types&&... args); 
+
+template <typename k, typename v, typename c>
+template <class... Types>
+std::pair<typename bst<k,v,c>::iterator, bool> bst<k,v,c>::emplace(Types&&... args){
+
+    //TODO: need to find a way to increase the performances with respect to an object constructor
+    //and an insert because otherwise is pretty much pointless, isn't it?
+
+    return insert(std::make_pair(std::forward<Types>(args)...)); 
+    //RIGHT??
+}
+
 #endif

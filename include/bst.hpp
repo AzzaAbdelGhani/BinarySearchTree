@@ -11,31 +11,29 @@ template <typename T>
 class node {
     T value;
     // TODO: For now we are going to use raw pointers, cause it's easier to traverse the tree
-    node* left;
-    node* right;
+    std::unique_ptr<node> left;
+    std::unique_ptr<node> right;
     node* parent; // root points to null pointer
 
     public:
-        node(T p): value{p}, left{nullptr}, right{nullptr}, parent{nullptr} {};
-        node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
+        node(T p): value{p}, parent{nullptr} {};
+        node(T p, node* n): value{p}, parent{n} {};
+        node(node* x);
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
-        ~node(){
-            delete left;
-            delete right;
-        }
+        ~node() {}
         using value_type = T;
 
         //getters
         //TODO: Should we return a value or a reference to the value? 
         T& getValue(){ return value;}
-        node* getLeft() const {return left;}
-        node* getRight() const {return right;}
+        node* getLeft() const {return left.get();}
+        node* getRight() const {return right.get();}
         node* getParent() const {return parent;}
 
         //setters
-        void setLeft(node* x) { left = x; }
-        void setRight(node* x) { right = x; }
+        void setLeft(node* x) { left.reset(x); }
+        void setRight(node* x) { right.reset(x); }
         void setParent(node* x) { parent = x; }
 };
 
@@ -48,6 +46,8 @@ class _iterator {
     public:
         _iterator() noexcept: current{nullptr} {};
         explicit _iterator(node_type* x) noexcept : current{x} {};
+        //explicit _iterator(std::unique_ptr<node_type> x) noexcept: current{x} {};
+        //TODO: do we need an iterator destructor?
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
@@ -98,13 +98,12 @@ template <typename k, typename v, typename c = std::less<k> >
 class bst{
     using node_type = node<std::pair<const k,v> >;
     c op = c();
-    //TODO: Head for now is a raw pointer, same reason for left and right
-    node_type* head;
+    std::unique_ptr<node_type> head;
 
     public:
         bst(c comp): op{comp}, head{nullptr} {};
-        bst(k key, v value, c comp): op{comp}, head{new node_type(std::pair<k,v>(key,value))} {};
-        ~bst() { delete head; }
+        bst(k key, v value, c comp): op{comp}, head{ std::make_unique<node_type>(std::pair<k,v>(key,value))} {};
+        //~bst() { delete head; }
 
         using pair_type = typename node_type::value_type;
         using iterator = _iterator<node_type, pair_type>;
@@ -209,7 +208,6 @@ node_type* _iterator<node_type,T>::next() noexcept{
         while(current->getParent()->getValue().first < current->getValue().first){
             current = current->getParent();
             if(current->getParent() == nullptr)
-                //return nullptr;
                 break;
         }
 
@@ -275,7 +273,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
     if(head == nullptr)
         return const_iterator(nullptr);
 
-    auto it = const_iterator(head);
+    auto it = const_iterator(head.get());
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());
     
@@ -289,7 +287,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
     if(head == nullptr)
         return const_iterator(nullptr);
 
-    auto it = const_iterator(head);
+    auto it = const_iterator(head.get());
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());
     
@@ -302,7 +300,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     if (head == nullptr)
     {
         head = new node_type(x, nullptr);
-        return(std::make_pair(iterator(head),true));
+        return(std::make_pair(iterator(head.get()),true));
     }
     
     node_type* new_node = nullptr;  
@@ -326,7 +324,8 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
         }
         
     }
-    tmp = new node_type(x, new_node);
+    //FIXME: how do we make tmp the left/right of new node? 
+    tmp = std::make_unique<node_type>(x, new_node);
     if (x.first < new_node->getValue().first)
     { 
         new_node->setLeft(tmp); 
@@ -345,12 +344,12 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     if (head == nullptr)
     {
         //head = new node_type(std::move(x), nullptr);
-        head = new node_type(std::move(x), nullptr);
-        return(std::make_pair(iterator(head),true));
+        head = std::make_unique<node_type>(std::move(x), nullptr);
+        return(std::make_pair(iterator(head.get()),true));
     }
     
     node_type* new_node = nullptr;  
-    auto tmp = head ;
+    auto tmp = head.get() ;
     
     while (tmp != nullptr)
     {
@@ -385,7 +384,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
     
-    auto it = iterator(head);
+    auto it = iterator(head.get());
 
     while(it.getCurrent() != nullptr )
     {

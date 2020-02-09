@@ -13,7 +13,7 @@ int main(){
     t.insert({6,6});
     // std::cout<< t << std::endl;
     std::cout << t << std::endl;
-    t.isThere({9});
+    //t.isThere({9});
 
     // //Constructor without head: insert should create the head: WORKS
     // bst<int, int, std::less<int>> abba{1,1,std::less<int>()};

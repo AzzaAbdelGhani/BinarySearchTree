@@ -10,32 +10,47 @@
 template <typename T>
 class node {
     T value;
-    // TODO: For now we are going to use raw pointers, cause it's easier to traverse the tree
-    node* left;
-    node* right;
-    node* parent; // root points to null pointer
+    std::unique_ptr<node> left;
+    std::unique_ptr<node> right;
+    node* parent;
 
     public:
-        node(T p): value{p}, left{nullptr}, right{nullptr}, parent{nullptr} {};
-        node(T p, node* n): value{p}, left{nullptr}, right{nullptr}, parent{n} {};
+        node(T p): value{p}, parent{nullptr} {};
+        node(T p, node* n): value{p}, parent{n} {};
+        //Explicit node copy constructor
+        explicit node(const std::unique_ptr<node> &p, node* parent): value{p->value}{
+            this->parent = parent;
+            if(p->right)
+                right = std::make_unique<node>(p->right, this); //We need *this in order to copy the parent
+            if(p->left)
+                left = std::make_unique<node>(p->left, this);
+        }
+
+        // //This is wrong: does not copy parent
+        // explicit node(const std::unique_ptr<node> &p): value{p->value}{
+        //     if(p->right)
+        //         right = std::make_unique<node>(p->right); //We need *this in order to copy the parent
+        //     if(p->left)
+        //         left = std::make_unique<node>(p->left);
+        // } //TODO: value or getValue()
+        
+
         //TODO: Move constructor, do we need it?
         //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
-        ~node(){
-            delete left;
-            delete right;
-        }
+        ~node() {}
         using value_type = T;
 
         //getters
-        //TODO: Should we return a value or a reference to the value? 
-        T& getValue(){ return value;}
-        node* getLeft() const {return left;}
-        node* getRight() const {return right;}
+        //TODO: Should we return a value or a reference to the value? Does this mean we can actually
+        //Modify the value of the node? 
+        T& getValue() { return value;}
+        node* getLeft() const {return left.get();}
+        node* getRight() const {return right.get();}
         node* getParent() const {return parent;}
 
         //setters
-        void setLeft(node* x) { left = x; }
-        void setRight(node* x) { right = x; }
+        void setLeft(node* x) { left.reset(x); }
+        void setRight(node* x) { right.reset(x); }
         void setParent(node* x) { parent = x; }
 };
 
@@ -48,13 +63,25 @@ class _iterator {
     public:
         _iterator() noexcept: current{nullptr} {};
         explicit _iterator(node_type* x) noexcept : current{x} {};
+        //TODO: do we need an iterator destructor?
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
         using iterator_category =std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
 
-        reference operator*() const noexcept { return current->getValue(); }
+        //BIGTODO: How the hell is this actually working? 
+        //Actually a random super good guy said this is compiler doing its things under curtains
+        //"But it's still bad, don't do it"
+        // reference operator*() const noexcept { 
+        //     value_type d = current->getValue();
+        //     value_type &ref = d;
+        //     return ref; 
+        // }
+        reference operator*() const noexcept { 
+            return(current->getValue());
+        }
+        
         pointer operator->() const noexcept { return &(*(*this)); }
 
         _iterator& operator++() noexcept {  // pre increment
@@ -97,14 +124,16 @@ class _iterator {
 template <typename k, typename v, typename c = std::less<k> >
 class bst{
     using node_type = node<std::pair<const k,v> >;
-    c op = c();
-    //TODO: Head for now is a raw pointer, same reason for left and right
-    node_type* head;
+    c op;
+    std::unique_ptr<node_type> head;
 
     public:
+        bst(): op{c()}, head{nullptr} {};
         bst(c comp): op{comp}, head{nullptr} {};
-        bst(k key, v value, c comp): op{comp}, head{new node_type(std::pair<k,v>(key,value))} {};
-        ~bst() { delete head; }
+        bst(k key, v value, c comp): op{comp}, head{ std::make_unique<node_type>(std::pair<k,v>(key,value))} {};
+
+        //bst& operator=(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
+        //~bst() { delete head; }
 
         using pair_type = typename node_type::value_type;
         using iterator = _iterator<node_type, pair_type>;
@@ -135,34 +164,50 @@ class bst{
         const_iterator end() const{ return const_iterator{nullptr};}
         const_iterator cend() const { return const_iterator{nullptr};}
 
-        
         iterator find(const k& x) noexcept; 
         const_iterator find(const k& x) const; 
 
         //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECH FIND FUNCTION 
         void isThere(const k& key){
-
             iterator result; 
             result = find(key);
             if(result == end()) std::cout<<"NOT FOUND"<<std::endl;
             else std::cout<<"FOUND"<<std::endl;
         }
 
-
         //TODO: to implement
         void balance(); 
 
-        //TODO: to implement
-        v& operator[](const k& x); 
-        //TODO: to implement
-        v& operator[](k& x); 
+        v& operator[](const k& x) {
+            auto it = find(x);
+            if(it != end())
+                return (*it).second;
+            else {
+                std::cout << "The key does not exist. Insert a value for the new node\n";
+                v inValue;
+                std::cin >> inValue;
+                auto p = insert({x,inValue});
+                return (*(p.first)).second;
+            }
+        }
+
+        v& operator[](k&& x){
+            iterator it = find(std::move(x));
+            if(it != end())
+                return (*it).second;
+            else {
+                std::cout << "The key does not exist. Insert a value for the new node\n";
+                v inValue;
+                std::cin >> inValue;
+                auto p = insert({std::move(x),inValue});
+                return (*(p.first)).second;
+            }
+        }
 
         friend
         std::ostream& operator<<(std::ostream& os, const bst& x){
             auto it = x.begin();
-            //FIXED: could not convert ‘it’ to bool
             while (it != x.end()) {
-                // os << it.getCurrent()->getValue().first << " ";
                 os << (*it).second << " ";
                 ++it;
             }
@@ -170,8 +215,11 @@ class bst{
         }
 
         // copy semantic
-        //TODO: to implement
-        bst(const bst& b); // copy constr 
+        // copy constr 
+        //bst(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
+        bst(const bst &b): op{b.op} { 
+            head = std::make_unique<node_type>(b.head,nullptr);
+        }
         //TODO: to implement
         bst& operator=(const bst& b); //copy assign 
 
@@ -185,7 +233,6 @@ class bst{
         //TODO: to implement
         void erase(const k& x); 
 };
-
 
 
 ////////////////////////////////
@@ -210,7 +257,6 @@ node_type* _iterator<node_type,T>::next() noexcept{
         while(current->getParent()->getValue().first < current->getValue().first){
             current = current->getParent();
             if(current->getParent() == nullptr)
-                //return nullptr;
                 break;
         }
 
@@ -255,7 +301,6 @@ void bst<k,v,c>::clear() noexcept{
         
 }
 
-
 //The first element of the bst is the leftmost element of the tree
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::iterator bst<k,v,c>::begin(){
@@ -276,7 +321,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const{
     if(head == nullptr)
         return const_iterator(nullptr);
 
-    auto it = const_iterator(head);
+    auto it = const_iterator(head.get());
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());
     
@@ -290,7 +335,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const{
     if(head == nullptr)
         return const_iterator(nullptr);
 
-    auto it = const_iterator(head);
+    auto it = const_iterator(head.get());
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());
     
@@ -303,7 +348,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     if (head == nullptr)
     {
         head = new node_type(x, nullptr);
-        return(std::make_pair(iterator(head),true));
+        return(std::make_pair(iterator(head.get()),true));
     }
     
     node_type* new_node = nullptr;  
@@ -327,13 +372,12 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
         }
         
     }
-    tmp = new node_type(x, new_node);
-    if (x.first < new_node->getValue().first)
-    { 
+
+    tmp = std::make_unique<node_type>(x, new_node);
+    if (x.first < new_node->getValue().first){ 
         new_node->setLeft(tmp); 
     }
-    else
-    {
+    else{
         new_node->setRight(tmp); 
     }
      
@@ -343,15 +387,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
 template <typename k, typename v, typename c>
 std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     
-    if (head == nullptr)
-    {
-        //head = new node_type(std::move(x), nullptr);
-        head = new node_type(std::move(x), nullptr);
-        return(std::make_pair(iterator(head),true));
+    if (head == nullptr){
+        head = std::make_unique<node_type>(std::move(x), nullptr);
+        return(std::make_pair(iterator(head.get()),true));
     }
     
     node_type* new_node = nullptr;  
-    auto tmp = head ;
+    auto tmp = head.get() ;
     
     while (tmp != nullptr)
     {
@@ -372,12 +414,10 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
         
     }
     tmp = new node_type(std::move(x), new_node);
-    if (x.first < new_node->getValue().first)
-    { 
+    if (x.first < new_node->getValue().first){ 
         new_node->setLeft(tmp); 
     }
-    else
-    {
+    else{
         new_node->setRight(tmp);
     }
     return(std::make_pair(iterator(tmp),true)); 
@@ -386,50 +426,39 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
     
-    auto it = iterator(head);
+    auto it = iterator(head.get());
 
-    while(it.getCurrent() != nullptr )
-    {
-        if(it.getCurrent()->getValue().first < x)
-        {
+    while(it.getCurrent() != nullptr ){
+        if(it.getCurrent()->getValue().first < x){
             it.setCurrent(it.getCurrent()->getRight()); 
         }
-        else if(it.getCurrent()->getValue().first > x)
-        {
+        else if(it.getCurrent()->getValue().first > x){
             it.setCurrent(it.getCurrent()->getLeft()); 
         }
-        else
-        {
+        else{
+            //it.getCurrent()->getValue() = std::make_pair(9,9);
             return(iterator(it));
-        }
-        
+        }   
     }
-
     return end();
 }
+
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
         
     auto it = const_iterator(head);
-    while(it.getCurrent() != nullptr )
-    {
-        if(it.getCurrent()->getValue().first < x)
-        {
+    while(it.getCurrent() != nullptr ){
+        if(it.getCurrent()->getValue().first < x){
             it.setCurrent(it.getCurrent()->getRight()); 
         }
-        else if(it.getCurrent()->getValue().first > x)
-        {
+        else if(it.getCurrent()->getValue().first > x){
             it.setCurrent(it.getCurrent()->getLeft()); 
         }
-        else
-        {
+        else{
             return(const_iterator(it));
-        }
-        
+        }  
     }
-
     return end();
 }
-
 
 #endif

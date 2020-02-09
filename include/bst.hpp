@@ -187,7 +187,6 @@ class bst{
 };
 
 
-
 ////////////////////////////////
 /////                     //////
 /////  ITERATOR FUNCTIONS //////
@@ -430,6 +429,5 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
 
     return end();
 }
-
 
 #endif

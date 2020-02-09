@@ -108,3 +108,5 @@ class bst {
 1. Why is cbegin operating on const? Shouldn't it be operating also on non-const bsts and yield
 the same const_iterator?
 
+2. In the subscripting operator we should insert a node if the key doesn't exist. Which value do we have to insert? Input from terminal?
+

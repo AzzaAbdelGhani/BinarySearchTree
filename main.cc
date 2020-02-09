@@ -22,7 +22,7 @@ int main(){
 
     // //Construct S.A.R.T.O.R.I. (Something abstract related to our recursive implementation)
     bst<int, int, std::less<int>> sartori{8,8,std::less<int>()};
-    sartori.insert({3,3}); //FIXME: something wrong when you go to the left
+    sartori.insert({3,3});
     sartori.insert({6,6});
     sartori.insert({1,1});
     sartori.insert({10,10});
@@ -32,8 +32,10 @@ int main(){
     sartori.insert({13,13});
     std::cout<< sartori << std::endl;
 
+    std::cout << sartori[3] << std::endl;
+    std::cout << sartori[60] << std::endl;
+    std::cout<< sartori << std::endl;
 
     return 0;
-
 }
 

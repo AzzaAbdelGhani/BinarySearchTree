@@ -91,6 +91,10 @@ int main(){
     sartoriBis.emplace(13,13);
     std::cout << sartoriBis << std::endl;
 
+    std::cout << "sartoriBis after emplace of (std::make_pair(21,21)): should be inserted" << std::endl;
+    sartoriBis.emplace(std::make_pair(21,21));
+    std::cout << sartoriBis << std::endl;    
+
     return 0;
 }
 

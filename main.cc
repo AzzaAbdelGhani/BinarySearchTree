@@ -91,6 +91,12 @@ int main(){
     sartoriBis.emplace(13,13);
     std::cout << sartoriBis << std::endl;
 
+
+    //Balance test
+    std::cout << "Now I want to balance sartori bst" << std::endl;
+    sartori.balance();
+    std::cout<< sartori << std::endl;
+    
     return 0;
 }
 

@@ -455,11 +455,18 @@ template <typename k, typename v, typename c>
 template <class... Types>
 std::pair<typename bst<k,v,c>::iterator, bool> bst<k,v,c>::emplace(Types&&... args){
 
-    //TODO: need to find a way to increase the performances with respect to an object constructor
-    //and an insert because otherwise is pretty much pointless, isn't it?
+    //Francesco: I am now 99.9% convinced that this is what should be done for this function.
+    //https://en.cppreference.com/w/cpp/container/map/emplace here is the stl reference for map
+    //Which is implemented as a red-black tree (btw, I think we should use exactly this container
+    //to benchmark our code).
+    //I am 100% convinced after reading stuff on the web that only one element should be inserted
+    //The trick is the following: make_pair strictly requires two arguments and builds a pair of that type
+    //Invoking the pair_type constructor instead allows us to exploit all the predefined std::pair move
+    //constructors! In this way we can actually pass either two arguments, or a pair, etc.. as
+    //arguments of the emplace function and get the result.
 
-    return insert(std::make_pair(std::forward<Types>(args)...)); 
-    //RIGHT??
+    return insert(pair_type(std::forward<Types>(args)...)); 
+    
 }
 
 template <typename k, typename v, typename c>

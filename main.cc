@@ -115,6 +115,20 @@ int main(){
     // std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
     // std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
 
+    // Let's build the upside-down tree!
+
+    bst<int, int, std::greater<int>> irotras{8,8,std::greater<int>()};
+    irotras.insert({3,3});
+    irotras.insert({6,6});
+    irotras.insert({1,1});
+    irotras.insert({10,10});
+    irotras.insert({7,7});
+    irotras.insert({14,14});
+    irotras.insert({4,4});
+    irotras.insert({13,13});
+
+    std::cout << "irotras" << std::endl;
+    std::cout<< irotras << std::endl;
     return 0;
 }
 

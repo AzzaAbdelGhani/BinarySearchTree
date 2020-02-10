@@ -100,20 +100,20 @@ int main(){
     //uselessVariable actually does not modify anything BUT it seems it is storing a value
     //since it will still be alive even when the tree is dead
     
-    auto uselessVariable = *(sartoriBis.begin());
-    (*(sartoriBis.begin())).second = 10;
-    std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
-    uselessVariable.second = 3;
-    std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
+    // auto uselessVariable = *(sartoriBis.begin());
+    // (*(sartoriBis.begin())).second = 10;
+    // std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
+    // uselessVariable.second = 3;
+    // std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
 
-    std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
-    std::cout << "sartoriBis BOOM!" << std::endl;
+    // std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
+    // std::cout << "sartoriBis BOOM!" << std::endl;
 
-    sartoriBis.clear();
+    // sartoriBis.clear();
 
-    //actually uselessVariableKey is still alive! Even though sartoriBis is clearly not
-    std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
-    std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
+    // //actually uselessVariableKey is still alive! Even though sartoriBis is clearly not
+    // std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
+    // std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
 
     return 0;
 }

@@ -237,14 +237,16 @@ node_type* _iterator<node_type,T>::next() noexcept{
         while(current->getLeft() != nullptr)
             current = current->getLeft();
     } else {
+        //If we are the head we are done
         if(current->getParent() == nullptr){
             return nullptr;
-        }
-        // TODO: we would need to use a compare operator
-        while(current->getParent()->getValue().first < current->getValue().first){
-            current = current->getParent();
-            if(current->getParent() == nullptr)
-                break;
+        } 
+        //What if we are actually the last element?
+        //We need to check if we are the child on the left of our parent
+        while(current->getParent()->getLeft() != current){
+                current = current->getParent();
+                if(current->getParent() == nullptr)
+                    return nullptr;
         }
 
         current = current->getParent();
@@ -252,6 +254,7 @@ node_type* _iterator<node_type,T>::next() noexcept{
     return current;
 }
 
+//TODO: do we need this? 
 template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::previous() noexcept{
     if(current->getLeft() != nullptr) {
@@ -263,12 +266,14 @@ node_type* _iterator<node_type,T>::previous() noexcept{
         if(current->getParent() == nullptr){
             return nullptr;
         }
-        // TODO: we would need to use a compare operator
-        while(current->getParent()->getValue().first > current->getValue().first){
-            current = current->getParent();
-            if(current->getParent() == nullptr)
-                return nullptr;
+
+        while(current->getParent()->getRight() != current){
+                current = current->getParent();
+                if(current->getParent() == nullptr)
+                    return nullptr;
         }
+
+        current = current->getParent();
     }
     return current;
 }
@@ -335,11 +340,11 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     while (tmp != nullptr)
     {
         new_node = tmp;
-        if (x.first < tmp->getValue().first)
+        if (op(x.first,tmp->getValue().first))
         {
             tmp = tmp->getLeft();
         }
-        else if ((x.first > tmp->getValue().first))
+        else if (op(tmp->getValue().first, x.first))
         {
             tmp = tmp->getRight();
         }  
@@ -352,7 +357,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     }
 
     tmp = std::make_unique<node_type>(x, new_node);
-    if (x.first < new_node->getValue().first){ 
+    if (op(x.first,new_node->getValue().first)){ 
         new_node->setLeft(tmp); 
     }
     else{
@@ -376,11 +381,11 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     while (tmp != nullptr)
     {
         new_node = tmp;
-        if (x.first < tmp->getValue().first)
+        if (op(x.first,tmp->getValue().first))
         {
             tmp = tmp->getLeft();
         }
-        else if (x.first > tmp->getValue().first)
+        else if (op(tmp->getValue().first,x.first))
         {
             tmp = tmp->getRight();
         }  
@@ -392,7 +397,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
         
     }
     tmp = new node_type(std::move(x), new_node);
-    if (x.first < new_node->getValue().first){ 
+    if (op(x.first,new_node->getValue().first)){ 
         new_node->setLeft(tmp); 
     }
     else{
@@ -407,14 +412,13 @@ typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
     auto it = iterator(head.get());
 
     while(it.getCurrent() != nullptr ){
-        if(it.getCurrent()->getValue().first < x){
+        if(op(it.getCurrent()->getValue().first,x)){
             it.setCurrent(it.getCurrent()->getRight()); 
         }
-        else if(it.getCurrent()->getValue().first > x){
+        else if(op(x,it.getCurrent()->getValue().first)){
             it.setCurrent(it.getCurrent()->getLeft()); 
         }
         else{
-            //it.getCurrent()->getValue() = std::make_pair(9,9);
             return(iterator(it));
         }   
     }
@@ -426,10 +430,10 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
         
     auto it = const_iterator(head);
     while(it.getCurrent() != nullptr ){
-        if(it.getCurrent()->getValue().first < x){
+        if(op(it.getCurrent()->getValue().first,x)){
             it.setCurrent(it.getCurrent()->getRight()); 
         }
-        else if(it.getCurrent()->getValue().first > x){
+        else if(op(x,it.getCurrent()->getValue().first)){
             it.setCurrent(it.getCurrent()->getLeft()); 
         }
         else{

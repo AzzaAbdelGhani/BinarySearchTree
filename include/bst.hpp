@@ -25,24 +25,15 @@ class node {
             if(p->left)
                 left = std::make_unique<node>(p->left, this);
         }
-
-        // //This is wrong: does not copy parent
-        // explicit node(const std::unique_ptr<node> &p): value{p->value}{
-        //     if(p->right)
-        //         right = std::make_unique<node>(p->right); //We need *this in order to copy the parent
-        //     if(p->left)
-        //         left = std::make_unique<node>(p->left);
-        // } //TODO: value or getValue()
         
-
-        //TODO: Move constructor, do we need it?
-        //node(T &&p): value{std::move(p)}, left{nullptr}, right{nullptr}, parent{nullptr} {};
         ~node() {}
         using value_type = T;
 
         //getters
         //TODO: Should we return a value or a reference to the value? Does this mean we can actually
         //Modify the value of the node? 
+        //Francesco: Honestly, even returning a reference here is smelly: what does it happen to the
+        //the reference if the node is destroyed?
         T& getValue() { return value;}
         node* getLeft() const {return left.get();}
         node* getRight() const {return right.get();}
@@ -64,6 +55,7 @@ class _iterator {
         _iterator() noexcept: current{nullptr} {};
         explicit _iterator(node_type* x) noexcept : current{x} {};
         //TODO: do we need an iterator destructor?
+        //(Francesco): probably not (see linked list)
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
@@ -142,15 +134,10 @@ class bst{
         std::pair<iterator, bool> insert(const pair_type& x);
         std::pair<iterator, bool> insert(pair_type&& x);
 
-        // TODO: what if we have an odd number of args?? Possibly exception!
-        // probably args should be pairs because in that way we can pass different types of k and v
-        // ask SARTORIIII
         // TODO: if insert thorows an exception, should emplace throw it too?
-        // TODO: to implement
         template<class... Types>
         std::pair<iterator,bool> emplace(Types&&... args); 
 
-        //TODO: to implement
         void clear() noexcept; 
 
         iterator begin() noexcept;
@@ -217,7 +204,7 @@ class bst{
         bst(const bst &b): op{b.op} { 
             head = std::make_unique<node_type>(b.head,nullptr);
         }
-        //copy assignment, TODO: is there space to optimize this by calling the copy constructor?
+        
         bst& operator=(const bst& b){
             this->clear();
             op = b.op;
@@ -299,7 +286,7 @@ typename bst<k,v,c>::iterator bst<k,v,c>::begin() noexcept {
     if(head == nullptr)
         return iterator(nullptr);
     
-    auto it = iterator(head);
+    auto it = iterator(head.get());
     while( it.getCurrent()->getLeft() != nullptr)
         it.setCurrent(it.getCurrent()->getLeft());
     

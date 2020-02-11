@@ -111,6 +111,26 @@ int main(){
     azza.erase(20);
 
 
+    //Emplace test
+
+    std::cout << "sartoriBis after emplace of (20,20)" << std::endl;
+    sartoriBis.emplace(20,20);
+    std::cout << sartoriBis << std::endl;
+
+    std::cout << "sartoriBis after emplace of (13,13): already has it and should not insert" << std::endl;
+    sartoriBis.emplace(13,13);
+    std::cout << sartoriBis << std::endl;
+
+    std::cout << "sartoriBis after emplace of (std::make_pair(21,21)): should be inserted" << std::endl;
+    sartoriBis.emplace(std::make_pair(21,21));
+    std::cout << sartoriBis << std::endl; 
+
+    //Balance test
+    std::cout << "Now I want to balance sartori bst" << std::endl;
+    sartori.balance();
+    std::cout<< sartori << std::endl;
+    
     return 0;
 }
+
 

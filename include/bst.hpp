@@ -52,6 +52,7 @@ class node {
         void setLeft(node* x) { left.reset(x); }
         void setRight(node* x) { right.reset(x); }
         void setParent(node* x) { parent = x; }
+        //void setValue(T x) {value = x;}
 };
 
 template <typename node_type, typename T>
@@ -231,7 +232,7 @@ class bst{
         bst& operator=(bst&& b) noexcept = default; //move assignment
 
         //TODO: to implement
-        void erase(const k& x); 
+        void erase(const k& x);
 };
 
 
@@ -458,4 +459,95 @@ void bst<k,v,c>::clear() noexcept {
         head.reset();
 }
 
+template <typename k, typename v, typename c>
+void bst<k,v,c>::erase(const k& x){
+
+    if(head == nullptr)
+    {
+        std::cout<<"The tree is empty"<<std::endl;
+        return;
+    }
+    else
+    {
+        
+        iterator p = find(x);
+        iterator q = p;
+        if(p == end()) // if the key is not in the tree
+        {
+            std::cout<< "The tree doesn't have this key" << std::endl;
+            return;
+        }
+        else if(p.getCurrent()->getRight() && p.getCurrent()->getLeft()) //if the key is a node has left and right // working
+        {
+            ++p;
+            //std::cout<<"the current node :"<< q.getCurrent()->getValue().second <<std::endl;
+            //std::cout<<"the next node :"<< p.getCurrent()->getValue().second <<std::endl;
+            p.getCurrent()->setLeft(q.getCurrent()->getLeft());
+            p.getCurrent()->getLeft()->setParent(p.getCurrent());
+            
+            if(q.getCurrent()->getParent() == nullptr)
+            {
+                p.getCurrent()->setParent(nullptr);
+                //head = std::make_unique(p.getCurrent()); //Why not working ? 
+            }
+
+            return;
+        }
+        //if it is a leaf node    // working    
+        else if(!p.getCurrent()->getLeft() && !p.getCurrent()->getRight())
+        {
+            if(p.getCurrent()->getParent()->getLeft() == p.getCurrent())
+            {
+                p.getCurrent()->getParent()->setLeft(nullptr);
+                return;
+            }
+            else if(p.getCurrent()->getParent()->getRight() == p.getCurrent())
+            {
+                p.getCurrent()->getParent()->setRight(nullptr);
+                return;
+            }
+        }
+        //if the node has a node on left side only // This is not working 
+        else if(p.getCurrent()->getLeft() && !p.getCurrent()->getRight())
+        {
+            p.getCurrent()->getLeft()->setParent(p.getCurrent()->getParent());
+            //std::cout<<"Hello ! ";
+            if(p.getCurrent()->getParent()->getLeft() == p.getCurrent())
+            {
+                p.getCurrent()->getParent()->setLeft(p.getCurrent()->getLeft());
+                //p.getCurrent()->setLeft(nullptr);
+                //p.getCurrent()->setParent(nullptr);
+                return;
+            }
+            else if(p.getCurrent()->getParent()->getRight() == p.getCurrent())
+            {
+                //std::cout<<" I am 14 "<< std::endl;
+                p.getCurrent()->getParent()->setRight(p.getCurrent()->getLeft());
+                //p.getCurrent()->setLeft(nullptr);
+                //p.getCurrent()->setParent(nullptr);
+                return;
+            }
+            
+            
+        }
+        //if the node has a node on right side only // This is not working perfectly 
+        else if(!p.getCurrent()->getLeft() && p.getCurrent()->getRight())
+        {
+            p.getCurrent()->getRight()->setParent(p.getCurrent()->getParent());
+             if(p.getCurrent()->getParent()->getLeft() == p.getCurrent())
+            {
+                p.getCurrent()->getParent()->setLeft(p.getCurrent()->getRight());
+                return;
+            }
+            else if(p.getCurrent()->getParent()->getRight() == p.getCurrent())
+            {
+                p.getCurrent()->getParent()->setRight(p.getCurrent()->getRight());
+                //p.getCurrent()->setRight(nullptr);
+                //p.getCurrent()->setParent(nullptr);
+                return;
+            }
+            
+        }
+    }
+}
 #endif

@@ -81,6 +81,36 @@ int main(){
     std::cout << "sartoriTris after sartoriBis = std::move(sartoriTris) ? " << std::endl;
     std::cout << sartoriTris << std::endl;
 
+
+    std::cout << "Testing the Erase Function :" << std::endl;
+    bst<int, int, std::less<int>> azza{std::less<int>()};
+    std::cout << azza << std::endl;
+    azza.erase(1);
+    azza.insert({8,8});
+    azza.insert({3,3});
+    azza.insert({6,6});
+    azza.insert({1,1});
+    azza.insert({10,10});
+    azza.insert({7,7});
+    azza.insert({14,14});
+    azza.insert({4,4});
+    azza.insert({13,13});
+    std::cout << azza << std::endl;
+    //azza.erase(1); //delete a leaf on right
+    //std::cout << azza << std::endl;
+    //azza.erase(7); //delete a leaf on left
+    //std::cout << azza << std::endl;
+    azza.erase(14); //delete a node that has a node on left only
+    std::cout << azza << std::endl;
+    //azza.erase(10); //delete a node that has a node on right only
+    //std::cout << azza << std::endl;
+    azza.erase(6); //delete a node has right and left nodes 
+    std::cout << azza << std::endl;
+    //azza.erase(8); //delete the root 
+    //std::cout << azza << std::endl;
+    azza.erase(20);
+
+
     return 0;
 }
 

@@ -1,7 +1,7 @@
 #include <bst.hpp>
 
 int main(){
-
+/*
     //Constructor with head
     //bst<int, int, std::less<int>> t{std::less<int>()};
     bst<int, int, std::less<int>> t{1,1,std::less<int>()};
@@ -80,12 +80,10 @@ int main(){
     
     std::cout << "sartoriTris after sartoriBis = std::move(sartoriTris) ? " << std::endl;
     std::cout << sartoriTris << std::endl;
-
+*/
 
     std::cout << "Testing the Erase Function :" << std::endl;
     bst<int, int, std::less<int>> azza{std::less<int>()};
-    std::cout << azza << std::endl;
-    azza.erase(1);
     azza.insert({8,8});
     azza.insert({3,3});
     azza.insert({6,6});
@@ -95,22 +93,20 @@ int main(){
     azza.insert({14,14});
     azza.insert({4,4});
     azza.insert({13,13});
-    std::cout << azza << std::endl;
-    //azza.erase(1); //delete a leaf on right
-    //std::cout << azza << std::endl;
-    //azza.erase(7); //delete a leaf on left
-    //std::cout << azza << std::endl;
-    azza.erase(14); //delete a node that has a node on left only
-    std::cout << azza << std::endl;
-    //azza.erase(10); //delete a node that has a node on right only
-    //std::cout << azza << std::endl;
-    azza.erase(6); //delete a node has right and left nodes 
-    std::cout << azza << std::endl;
-    //azza.erase(8); //delete the root 
-    //std::cout << azza << std::endl;
-    azza.erase(20);
-
-
+    
+    //azza.erase(1); //delete a leaf on left
+    //azza.erase(7); //delete a leaf on right
+    azza.erase(14); //delete a node that has a node on left only ---> NOT WORKING
+    
+    //azza.erase(10); //delete a node that has a node on right only ---> NOT WORKING
+    
+    //azza.erase(6); //delete a node has right and left nodes ---> NOT WORKING
+    
+    //azza.erase(8); //delete the root ---> NOT WORKING
+    
+    //azza.erase(20); //delete a key not present
+    azza.draw();
+/*
     //Emplace test
 
     std::cout << "sartoriBis after emplace of (20,20)" << std::endl;
@@ -126,11 +122,14 @@ int main(){
     std::cout << sartoriBis << std::endl; 
 
     //Balance test
-    std::cout << "Now I want to balance sartori bst" << std::endl;
+    std::cout << "Imbalance sartori bst" << std::endl;
+    sartori.draw();
     sartori.balance();
-    std::cout<< sartori << std::endl;
+    std::cout << "Balance sartori bst" << std::endl;
+    sartori.draw();
     
     return 0;
+    */
 }
 
 

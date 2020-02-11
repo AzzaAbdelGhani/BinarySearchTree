@@ -133,6 +133,7 @@ class bst{
     void balanceRec(std::vector<pair_type> values, size_t n);
     bool isBalanced(node_type* x);
     int height(node_type* x);
+    void drawRec(const std::string& prefix, node_type* x, bool isLeft);
 
     public:
         bst(): op{c()}, head{nullptr} {};
@@ -177,7 +178,7 @@ class bst{
             else std::cout<<"FOUND"<<std::endl;
         }
 
-        void balance();  
+        void balance(); 
 
         v& operator[](const k& x) {
             auto it = find(x);
@@ -214,6 +215,8 @@ class bst{
             }
             return os;
         }
+
+        void draw();
 
         // copy semantic
         // copy constr 
@@ -418,7 +421,6 @@ typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
             it.setCurrent(it.getCurrent()->getLeft()); 
         }
         else{
-            //it.getCurrent()->getValue() = std::make_pair(9,9);
             return(iterator(it));
         }   
     }
@@ -452,97 +454,46 @@ void bst<k,v,c>::clear() noexcept {
 template <typename k, typename v, typename c>
 void bst<k,v,c>::erase(const k& x){
 
-    if(head == nullptr)
-    {
-        std::cout<<"The tree is empty"<<std::endl;
-        return;
-    }
-    else
-    {
-        
-        iterator p = find(x);
-        iterator q = p;
-        if(p == end()) // if the key is not in the tree
-        {
-            std::cout<< "The tree doesn't have this key" << std::endl;
-            return;
-        }
-        else if(p.getCurrent()->getRight() && p.getCurrent()->getLeft()) //if the key is a node has left and right // working
-        {
-            ++p;
-            //std::cout<<"the current node :"<< q.getCurrent()->getValue().second <<std::endl;
-            //std::cout<<"the next node :"<< p.getCurrent()->getValue().second <<std::endl;
-            p.getCurrent()->setLeft(q.getCurrent()->getLeft());
-            p.getCurrent()->getLeft()->setParent(p.getCurrent());
+    iterator p = find(x);
+    iterator q = p;
+
+    if(p == end()) { //if the key is not in the tree
+        std::cout<< "The tree doesn't have this key" << std::endl;
+    } else {
+        auto current = p.getCurrent();
+        auto left = current->getLeft();
+        auto right = current->getRight();
+        auto parent = current->getParent();
+
+        if(left && right) { //"full node"
+            ++current;
+            current->setLeft(q.getCurrent()->getLeft());
+            left->setParent(current);
             
             if(q.getCurrent()->getParent() == nullptr)
-            {
-                p.getCurrent()->setParent(nullptr);
-                //head = std::make_unique(p.getCurrent()); //Why not working ? 
-            }
-
-            return;
-        }
-        //if it is a leaf node    // working    
-        else if(!p.getCurrent()->getLeft() && !p.getCurrent()->getRight())
-        {
-            if(p.getCurrent()->getParent()->getLeft() == p.getCurrent())
-            {
-                p.getCurrent()->getParent()->setLeft(nullptr);
-                return;
-            }
-            else if(p.getCurrent()->getParent()->getRight() == p.getCurrent())
-            {
-                p.getCurrent()->getParent()->setRight(nullptr);
-                return;
-            }
-        }
-        //if the node has a node on left side only // This is not working 
-        else if(p.getCurrent()->getLeft() && !p.getCurrent()->getRight())
-        {
-            p.getCurrent()->getLeft()->setParent(p.getCurrent()->getParent());
-            //std::cout<<"Hello ! ";
-            if(p.getCurrent()->getParent()->getLeft() == p.getCurrent())
-            {
-                p.getCurrent()->getParent()->setLeft(p.getCurrent()->getLeft());
-                //p.getCurrent()->setLeft(nullptr);
-                //p.getCurrent()->setParent(nullptr);
-                return;
-            }
-            else if(p.getCurrent()->getParent()->getRight() == p.getCurrent())
-            {
-                //std::cout<<" I am 14 "<< std::endl;
-                p.getCurrent()->getParent()->setRight(p.getCurrent()->getLeft());
-                //p.getCurrent()->setLeft(nullptr);
-                //p.getCurrent()->setParent(nullptr);
-                return;
-            }
-            
-            
-        }
-        //if the node has a node on right side only // This is not working perfectly 
-        else if(!p.getCurrent()->getLeft() && p.getCurrent()->getRight())
-        {
-            p.getCurrent()->getRight()->setParent(p.getCurrent()->getParent());
-             if(p.getCurrent()->getParent()->getLeft() == p.getCurrent())
-            {
-                p.getCurrent()->getParent()->setLeft(p.getCurrent()->getRight());
-                return;
-            }
-            else if(p.getCurrent()->getParent()->getRight() == p.getCurrent())
-            {
-                p.getCurrent()->getParent()->setRight(p.getCurrent()->getRight());
-                //p.getCurrent()->setRight(nullptr);
-                //p.getCurrent()->setParent(nullptr);
-                return;
-            }
-            
+                current->setParent(nullptr);
+                //head = std::make_unique(p.getCurrent()); //TODO:Why not working? 
+        } else if(!left && !right) { //leaf node   
+            if(parent->getLeft() == current)
+                parent->setLeft(nullptr);
+            else
+                parent->setRight(nullptr);
+        } else if(left && !right) { //node with only left child
+            left->setParent(parent);
+            if(parent->getLeft() == current)
+                parent->setLeft(left);
+            else
+                parent->setRight(left);
+        } else { //node with only right child 
+            right->setParent(parent);
+            if(parent->getLeft() == current)
+                parent->setLeft(right);
+            else
+                parent->setRight(right);
         }
     }
+    return;
 }
-#endif
-// template<class... Types>
-// std::pair<iterator,bool> emplace(Types&&... args); 
 
 template <typename k, typename v, typename c>
 template <class... Types>
@@ -623,4 +574,26 @@ int bst<k,v,c>::height(node_type* x) {
         return 0; 
     return 1 + std::max(height(x->getLeft()), height(x->getRight()));
 }
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::draw() {
+    drawRec("",head.get(),false);
+}
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::drawRec(const std::string& prefix, node_type* x, bool isLeft) {
+    if(x != nullptr){
+        std::cout << prefix;
+
+        std::cout << (isLeft ? "├──" : "└──" );
+
+        // print the value of the node
+        std::cout << x->getValue().first << std::endl;
+
+        // enter the next tree level - left and right branch
+        drawRec( prefix + (isLeft ? "│   " : "    "), x->getLeft(), true);
+        drawRec( prefix + (isLeft ? "│   " : "    "), x->getRight(), false);
+    }
+}
+
 #endif

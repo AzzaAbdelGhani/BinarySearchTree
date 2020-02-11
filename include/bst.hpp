@@ -6,6 +6,8 @@
 #include <memory>
 #include <iterator>
 #include <utility>
+#include <vector>
+#include <cmath>
 
 template <typename T>
 class node {
@@ -21,7 +23,7 @@ class node {
         explicit node(const std::unique_ptr<node> &p, node* parent): value{p->value}{
             this->parent = parent;
             if(p->right)
-                right = std::make_unique<node>(p->right, this); //We need *this in order to copy the parent
+                right = std::make_unique<node>(p->right, this); //We need this in order to copy the parent
             if(p->left)
                 left = std::make_unique<node>(p->left, this);
         }
@@ -70,9 +72,7 @@ class _iterator {
         //     value_type &ref = d;
         //     return ref; 
         // }
-        reference operator*() const noexcept { 
-            return(current->getValue());
-        }
+        reference operator*() const noexcept { return(current->getValue()); }
         
         pointer operator->() const noexcept { return &(*(*this)); }
 
@@ -116,8 +116,14 @@ class _iterator {
 template <typename k, typename v, typename c = std::less<k> >
 class bst{
     using node_type = node<std::pair<const k,v> >;
+    using pair_type = typename node_type::value_type;
     c op;
     std::unique_ptr<node_type> head;
+
+    //private functions for tree balance
+    void balanceRec(std::vector<pair_type> values, size_t n);
+    bool isBalanced(node_type* x);
+    int height(node_type* x);
 
     public:
         bst(): op{c()}, head{nullptr} {};
@@ -127,7 +133,6 @@ class bst{
         //bst& operator=(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
         //~bst() { delete head; }
 
-        using pair_type = typename node_type::value_type;
         using iterator = _iterator<node_type, pair_type>;
         using const_iterator = _iterator<node_type, const pair_type>;
 
@@ -152,7 +157,7 @@ class bst{
         iterator find(const k& x) noexcept; 
         const_iterator find(const k& x) const; 
 
-        //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECH FIND FUNCTION 
+        //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECK FIND FUNCTION 
         void isThere(const k& key){
             iterator result; 
             result = find(key);
@@ -160,8 +165,7 @@ class bst{
             else std::cout<<"FOUND"<<std::endl;
         }
 
-        //TODO: to implement
-        void balance(); 
+        void balance();  
 
         v& operator[](const k& x) {
             auto it = find(x);
@@ -246,7 +250,6 @@ node_type* _iterator<node_type,T>::next() noexcept{
             if(current->getParent() == nullptr)
                 break;
         }
-
         current = current->getParent();
     }
     return current;
@@ -256,7 +259,6 @@ template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::previous() noexcept{
     if(current->getLeft() != nullptr) {
         current = current->getLeft();
-
         while(current->getRight() != nullptr)
             current = current->getRight();
     } else {
@@ -267,7 +269,7 @@ node_type* _iterator<node_type,T>::previous() noexcept{
         while(current->getParent()->getValue().first > current->getValue().first){
             current = current->getParent();
             if(current->getParent() == nullptr)
-                return nullptr;
+                return nullptr; //TODO: fix the bug if we will actually use this function 
         }
     }
     return current;
@@ -323,8 +325,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const noexcept{
 template <typename k, typename v, typename c>
 std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
     
-    if (head == nullptr)
-    {
+    if (head == nullptr){
         head = new node_type(x, nullptr);
         return(std::make_pair(iterator(head.get()),true));
     }
@@ -332,19 +333,15 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     node_type* new_node = nullptr;  
     node_type* tmp = head ;
     
-    while (tmp != nullptr)
-    {
+    while (tmp != nullptr){
         new_node = tmp;
-        if (x.first < tmp->getValue().first)
-        {
+        if (x.first < tmp->getValue().first){
             tmp = tmp->getLeft();
         }
-        else if ((x.first > tmp->getValue().first))
-        {
+        else if ((x.first > tmp->getValue().first)){
             tmp = tmp->getRight();
         }  
-        else
-        {
+        else{
             //if the key is already exist 
              return(std::make_pair(iterator(),false));
         }
@@ -373,23 +370,18 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     node_type* new_node = nullptr;  
     auto tmp = head.get() ;
     
-    while (tmp != nullptr)
-    {
+    while (tmp != nullptr){
         new_node = tmp;
-        if (x.first < tmp->getValue().first)
-        {
+        if (x.first < tmp->getValue().first){
             tmp = tmp->getLeft();
         }
-        else if (x.first > tmp->getValue().first)
-        {
+        else if (x.first > tmp->getValue().first){
             tmp = tmp->getRight();
         }  
-        else
-        {
+        else{
             //if the key is already exist 
              return(std::pair<iterator, bool> (iterator(),false));
-        }
-        
+        } 
     }
     tmp = new node_type(std::move(x), new_node);
     if (x.first < new_node->getValue().first){ 
@@ -405,7 +397,6 @@ template <typename k, typename v, typename c>
 typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
     
     auto it = iterator(head.get());
-
     while(it.getCurrent() != nullptr ){
         if(it.getCurrent()->getValue().first < x){
             it.setCurrent(it.getCurrent()->getRight()); 
@@ -424,7 +415,7 @@ typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
         
-    auto it = const_iterator(head);
+    auto it = const_iterator(head.get());
     while(it.getCurrent() != nullptr ){
         if(it.getCurrent()->getValue().first < x){
             it.setCurrent(it.getCurrent()->getRight()); 
@@ -466,4 +457,65 @@ std::pair<typename bst<k,v,c>::iterator, bool> bst<k,v,c>::emplace(Types&&... ar
     
 }
 
+template <typename k, typename v, typename c>
+void bst<k,v,c>::balance() {
+
+    //copying ordered values in a vector 
+    std::vector<pair_type> values;
+    auto it = begin();
+    while(it.getCurrent() != nullptr){
+        values.push_back((*it));
+        it++;
+    }
+    clear(); //clear the bst
+    balanceRec(values, values.size()); //re-built the balanced bst
+
+    if(isBalanced(head.get()))
+        std::cout << "The tree is now balanced" << std::endl;
+    else
+        std::cout << "The tree is still NOT balanced" << std::endl;
+}
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::balanceRec(std::vector<pair_type> values, size_t n) {
+    if(n==1) {
+        insert({values.at(0).first,values.at(0).second});
+    } else if(n==2) {
+        insert({values.at(0).first,values.at(0).second});
+        insert({values.at(1).first,values.at(1).second});
+    } else{
+        int middle = (n % 2 == 0) ? (n/2)-1 : floor(n/2);
+        insert({values.at(middle).first,values.at(middle).second});
+
+        //create 2 sub-vectors
+        auto firstLeft = values.begin();
+        auto lastLeft = values.begin() + middle;
+        auto firstRight = values.begin() + middle + 1;
+        auto lastRight = values.end();
+        std::vector<pair_type> leftValues(firstLeft,lastLeft);
+        std::vector<pair_type> rightValues(firstRight,lastRight);
+        balanceRec(leftValues, leftValues.size());
+        balanceRec(rightValues, rightValues.size());
+    }
+}
+
+template <typename k, typename v, typename c>
+bool bst<k,v,c>::isBalanced(node_type* x) {
+    if (x == nullptr) 
+        return true; 
+    
+    int lh = height(x->getLeft()); 
+    int rh = height(x->getRight()); 
+  
+    if(abs(lh - rh) <= 1 && isBalanced(x->getLeft()) && isBalanced(x->getRight())) 
+        return true;
+    return false;
+}
+
+template <typename k, typename v, typename c>
+int bst<k,v,c>::height(node_type* x) {
+    if (x == nullptr) 
+        return 0; 
+    return 1 + std::max(height(x->getLeft()), height(x->getRight()));
+}
 #endif

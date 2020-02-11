@@ -93,7 +93,7 @@ int main(){
 
     std::cout << "sartoriBis after emplace of (std::make_pair(21,21)): should be inserted" << std::endl;
     sartoriBis.emplace(std::make_pair(21,21));
-    std::cout << sartoriBis << std::endl;    
+    std::cout << sartoriBis << std::endl; 
 
     //getters Test: we try to see what we can achieve with actually returning a reference with begin
 
@@ -115,6 +115,12 @@ int main(){
     std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
     std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
 
+    //Balance test
+    std::cout << "Now I want to balance sartori bst" << std::endl;
+    sartori.balance();
+    std::cout<< sartori << std::endl;
+    
     return 0;
 }
+
 

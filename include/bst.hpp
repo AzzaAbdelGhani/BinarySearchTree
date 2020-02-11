@@ -135,6 +135,10 @@ class bst{
         std::pair<iterator, bool> insert(pair_type&& x);
 
         // TODO: if insert thorows an exception, should emplace throw it too?
+        //The answer is yes: does emplace has in its implementation something that can throw
+        //an exception? Yes of course, insert! Therefore emplace will "re-throw" the same exception
+        //if actually one (and only one is possible which is due to make_unique failing for memory
+        //reason)
         template<class... Types>
         std::pair<iterator,bool> emplace(Types&&... args); 
 
@@ -152,7 +156,7 @@ class bst{
         iterator find(const k& x) noexcept; 
         const_iterator find(const k& x) const; 
 
-        //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECH FIND FUNCTION 
+        //THIS FUNCTION IS FOR DEBUGGING PURPOSES, TO CHECK FIND FUNCTION 
         void isThere(const k& key){
             iterator result; 
             result = find(key);
@@ -160,7 +164,6 @@ class bst{
             else std::cout<<"FOUND"<<std::endl;
         }
 
-        //TODO: to implement
         void balance(); 
 
         v& operator[](const k& x) {
@@ -449,8 +452,6 @@ void bst<k,v,c>::clear() noexcept {
         head.reset();
 }
 
-// template<class... Types>
-// std::pair<iterator,bool> emplace(Types&&... args); 
 
 template <typename k, typename v, typename c>
 template <class... Types>

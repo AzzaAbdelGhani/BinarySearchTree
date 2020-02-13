@@ -23,7 +23,7 @@ class node {
         explicit node(const std::unique_ptr<node> &p, node* parent): value{p->value}{
             this->parent = parent;
             if(p->right)
-                right = std::make_unique<node>(p->right, this); //We need this in order to copy the parent
+                right = std::make_unique<node>(p->right, this);
             if(p->left)
                 left = std::make_unique<node>(p->left, this);
         }
@@ -45,7 +45,11 @@ class node {
         void setLeft(node* x) { left.reset(x); }
         void setRight(node* x) { right.reset(x); }
         void setParent(node* x) { parent = x; }
-        //void setValue(T x) {value = x;}
+        
+
+        //release 
+        node* releaseRight() {return right.release();}
+        node* releaseLeft() {return left.release();}
 };
 
 template <typename node_type, typename T>
@@ -62,10 +66,9 @@ class _iterator {
         using value_type = T;
         using reference = value_type&;
         using pointer = value_type*;
-        using iterator_category =std::bidirectional_iterator_tag;
+        using iterator_category =std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
 
-        //BIGTODO: How the hell is this actually working? 
         //Actually a random super good guy said this is compiler doing its things under curtains
         //"But it's still bad, don't do it"
         // reference operator*() const noexcept { 
@@ -87,7 +90,7 @@ class _iterator {
             ++(*this);
             return tmp;
         }
-
+/*
         _iterator& operator--() noexcept { //pre decrement
             current = previous();
             return *this;
@@ -98,7 +101,7 @@ class _iterator {
             --(*this);
             return tmp;
         }
-
+*/
         friend bool operator==(const _iterator& a, const _iterator& b) {
             return a.current == b.current;
         }
@@ -131,21 +134,13 @@ class bst{
         bst(): op{c()}, head{nullptr} {};
         bst(c comp): op{comp}, head{nullptr} {};
         bst(k key, v value, c comp): op{comp}, head{ std::make_unique<node_type>(std::pair<k,v>(key,value))} {};
-
-        //bst& operator=(const bst &b) { head = std::make_unique<node>(b.head, nullptr);}
-        //~bst() { delete head; }
-
+        
         using iterator = _iterator<node_type, pair_type>;
         using const_iterator = _iterator<node_type, const pair_type>;
 
         std::pair<iterator, bool> insert(const pair_type& x);
         std::pair<iterator, bool> insert(pair_type&& x);
 
-        // TODO: if insert thorows an exception, should emplace throw it too?
-        //The answer is yes: does emplace has in its implementation something that can throw
-        //an exception? Yes of course, insert! Therefore emplace will "re-throw" the same exception
-        //if actually one (and only one is possible which is due to make_unique failing for memory
-        //reason)
         template<class... Types>
         std::pair<iterator,bool> emplace(Types&&... args); 
 
@@ -153,7 +148,6 @@ class bst{
 
         iterator begin() noexcept;
         const_iterator begin() const noexcept;
-        // TODO: maybe add cbegin () without const??
         const_iterator cbegin() const noexcept; 
 
         iterator end() noexcept {return iterator{nullptr};}
@@ -178,10 +172,7 @@ class bst{
             if(it != end())
                 return (*it).second;
             else {
-                std::cout << "The key does not exist. Insert a value for the new node\n";
-                v inValue;
-                std::cin >> inValue;
-                auto p = insert({x,inValue});
+                auto p = insert({x,v{}});
                 return (*(p.first)).second;
             }
         }
@@ -191,10 +182,7 @@ class bst{
             if(it != end())
                 return (*it).second;
             else {
-                std::cout << "The key does not exist. Insert a value for the new node\n";
-                v inValue;
-                std::cin >> inValue;
-                auto p = insert({std::move(x),inValue});
+                auto p = insert({std::move(x),v{}});
                 return (*(p.first)).second;
             }
         }
@@ -226,10 +214,9 @@ class bst{
 
         // move semantic
         // move constr 
-        bst(bst&& b) noexcept = default; //This actually works
+        bst(bst&& b) noexcept = default;
         bst& operator=(bst&& b) noexcept = default; //move assignment
 
-        //TODO: to implement
         void erase(const k& x);
 };
 
@@ -253,8 +240,6 @@ node_type* _iterator<node_type,T>::next() noexcept{
         if(current->getParent() == nullptr){
             return nullptr;
         } 
-        //What if we are actually the last element?
-        //We need to check if we are the child on the left of our parent
         while(current->getParent()->getLeft() != current){
                 current = current->getParent();
                 if(current->getParent() == nullptr)
@@ -264,8 +249,8 @@ node_type* _iterator<node_type,T>::next() noexcept{
     }
     return current;
 }
+/*
 
-//TODO: do we need this? 
 template <typename node_type, typename T>
 node_type* _iterator<node_type,T>::previous() noexcept{
     if(current->getLeft() != nullptr) {
@@ -287,7 +272,7 @@ node_type* _iterator<node_type,T>::previous() noexcept{
     }
     return current;
 }
-
+*/
 ///////////////////////////
 /////                //////
 /////  BST FUNCTIONS //////
@@ -456,7 +441,7 @@ template <typename k, typename v, typename c>
 void bst<k,v,c>::erase(const k& x){
 
     iterator p = find(x);
-    iterator q = p;
+    //iterator q = p;
 
     if(p == end()) { //if the key is not in the tree
         std::cout<< "The tree doesn't have this key" << std::endl;
@@ -467,30 +452,83 @@ void bst<k,v,c>::erase(const k& x){
         auto parent = current->getParent();
 
         if(left && right) { //"full node"
-            ++current;
-            current->setLeft(q.getCurrent()->getLeft());
-            left->setParent(current);
+            ++p;
+            auto _current = p.getCurrent();
+            auto _parent = _current->getParent();
+            _current->setLeft(left);
+            left->setParent(_current);
+            if(_parent == current){_current->setParent(parent);}
+            else {_parent->setParent(parent);}
             
-            if(q.getCurrent()->getParent() == nullptr)
-                current->setParent(nullptr);
+            if(parent->getLeft() == current)
+            {
+                auto tmp = parent->releaseLeft();
+                tmp->releaseRight();
+                parent->setLeft(right);
+                tmp->releaseLeft();
+                delete tmp;
+            }
+            else
+            {
+                auto tmp = parent->releaseRight();
+                tmp->releaseLeft();
+                parent->setRight(right);
+                tmp->releaseLeft();
+                delete tmp;
+            }
+            if(head.get() == current)
+            {
+                current = head.release();
+                head.reset(_current);
+                current->releaseRight();
+                current->releaseLeft();
+                delete current;
+            }
+            //if(q.getCurrent()->getParent() == nullptr)
+                //current->setParent(nullptr);
                 //head = std::make_unique(p.getCurrent()); //TODO:Why not working? 
-        } else if(!left && !right) { //leaf node   
+        } else if(!left && !right) { //leaf node  
+            //if(current == head) {head.reset();} 
             if(parent->getLeft() == current)
                 parent->setLeft(nullptr);
             else
                 parent->setRight(nullptr);
         } else if(left && !right) { //node with only left child
+            
             left->setParent(parent);
             if(parent->getLeft() == current)
+            {
+                auto tmp = parent->releaseLeft();
+                tmp->releaseRight();
                 parent->setLeft(left);
+                delete tmp;
+            }
             else
+            {
+                auto tmp = parent->releaseRight();
+                tmp->releaseLeft();
                 parent->setRight(left);
+                delete tmp;
+            }
+                
         } else { //node with only right child 
             right->setParent(parent);
             if(parent->getLeft() == current)
+            {
+                auto tmp = parent->releaseLeft();
+                tmp->releaseRight();
                 parent->setLeft(right);
+                tmp->releaseLeft();
+                delete tmp;
+            }
             else
+            {
+                auto tmp = parent->releaseRight();
+                tmp->releaseLeft();
                 parent->setRight(right);
+                tmp->releaseRight();
+                delete tmp;
+            }
         }
     }
     return;

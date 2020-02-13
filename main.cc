@@ -86,23 +86,26 @@ int main(){
     bst<int, int, std::less<int>> azza{std::less<int>()};
     azza.insert({8,8});
     azza.insert({3,3});
-    azza.insert({6,6});
+    //azza.insert({6,6});
+    azza[6] = 6;
     azza.insert({1,1});
     azza.insert({10,10});
     azza.insert({7,7});
     azza.insert({14,14});
     azza.insert({4,4});
     azza.insert({13,13});
-    
+    std::cout << "Azza's Tree :"<<std::endl;
+    std::cout << azza << std::endl;
+    //azza.draw();
     //azza.erase(1); //delete a leaf on left
     //azza.erase(7); //delete a leaf on right
-    azza.erase(14); //delete a node that has a node on left only ---> NOT WORKING
-    
+    //azza.erase(14); //delete a node that has a node on left only ---> NOT WORKING
+    //azza.draw();
     //azza.erase(10); //delete a node that has a node on right only ---> NOT WORKING
-    
+    //azza.draw();
     //azza.erase(6); //delete a node has right and left nodes ---> NOT WORKING
     
-    //azza.erase(8); //delete the root ---> NOT WORKING
+    azza.erase(8); //delete the root ---> NOT WORKING
     
     //azza.erase(20); //delete a key not present
     azza.draw();
@@ -127,7 +130,8 @@ int main(){
     sartori.balance();
     std::cout << "Balance sartori bst" << std::endl;
     sartori.draw();
-    */
+    
+
 
 
 
@@ -160,7 +164,7 @@ int main(){
         std::cout << "Sartori" << std::endl;
         std::cout<< sartori << std::endl;
 
-        std::cout << sartori[3] << std::endl;
+        std::cout << sartori[9] << std::endl;
         //std::cout << sartori[60] << std::endl;
         //std::cout<< sartori << std::endl;
 
@@ -261,6 +265,8 @@ int main(){
         std::cerr << "Unknown exception occured" << std::endl;
         return 2;
     }
+
+*/
     return 0;
     
 }

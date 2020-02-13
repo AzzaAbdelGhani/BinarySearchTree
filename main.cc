@@ -127,12 +127,9 @@ int main(){
     sartori.balance();
     std::cout << "Balance sartori bst" << std::endl;
     sartori.draw();
-<<<<<<< HEAD
-    
-    return 0;
     */
-=======
-    */
+
+
 
     //TODO: for debugging purposes, let's just stick with key=value (just like Alberto)
     //TODO: Should we just have one big try catch block in our main?
@@ -266,7 +263,6 @@ int main(){
     }
     return 0;
     
->>>>>>> draw() function and updates to the erase() function
 }
 
 

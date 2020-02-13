@@ -450,53 +450,103 @@ void bst<k,v,c>::erase(const k& x){
         auto left = current->getLeft();
         auto right = current->getRight();
         auto parent = current->getParent();
-
+           
         if(left && right) { //"full node"
             ++p;
             auto _current = p.getCurrent();
             auto _parent = _current->getParent();
-            _current->setLeft(left);
-            left->setParent(_current);
-            if(_parent == current){_current->setParent(parent);}
-            else {_parent->setParent(parent);}
-            
-            if(parent->getLeft() == current)
+            auto _right = _current->getRight();
+            auto tmp = current->releaseLeft();
+            _current->setLeft(tmp);
+            tmp->setParent(_current);
+
+
+            if(_parent == current)
             {
-                auto tmp = parent->releaseLeft();
-                tmp->releaseRight();
-                parent->setLeft(right);
-                tmp->releaseLeft();
-                delete tmp;
+                auto tmp_next = _parent->releaseRight();
+                if(head.get() == current)
+                {
+                    auto del_root = head.release();
+                    head.reset(tmp_next);
+                    delete del_root;
+                }
+                else if(parent->getLeft() == current)
+                {
+                    auto tmp_current = parent->releaseLeft();
+                    parent->setLeft(tmp_next);
+                    delete tmp_current;
+                }
+                else 
+                {
+                    auto tmp_current = parent->releaseRight();
+                    parent->setRight(tmp_next);
+                    delete tmp_current;
+                }
+                tmp_next->setParent(parent);
+
             }
-            else
+            else 
             {
-                auto tmp = parent->releaseRight();
-                tmp->releaseLeft();
-                parent->setRight(right);
-                tmp->releaseLeft();
-                delete tmp;
+                auto tmp_next = _parent->releaseLeft();
+                if(_right)
+                {
+                    auto tmp_right = _current->releaseRight();
+                    _parent->setLeft(tmp_right);
+                    tmp_right->setParent(_parent);
+                }
+
+                auto tmp_parent = current->releaseRight();
+                tmp_next->setRight(tmp_parent);
+                tmp_parent->setParent(tmp_next);
+                
+                if(head.get() == current)
+                {
+                    auto del_root = head.release();
+                    head.reset(tmp_next);
+                    delete del_root;
+                }
+                else if (parent->getLeft() == current)
+                {
+                    auto tmp_current = parent->releaseLeft();
+                    parent->setLeft(tmp_next);
+                    delete tmp_current;
+                }
+                else
+                {
+                    auto tmp_current = parent->releaseRight();
+                    parent->setRight(tmp_next);
+                    delete tmp_current;
+                    
+                }
+                tmp_next->setParent(parent);
+                
+                
             }
+
+
+        } else if(!left && !right) { //leaf node  
+             
             if(head.get() == current)
             {
-                current = head.release();
-                head.reset(_current);
-                current->releaseRight();
-                current->releaseLeft();
-                delete current;
+                auto del_root = head.release();
+                head.reset(nullptr);
+                delete del_root;
             }
-            //if(q.getCurrent()->getParent() == nullptr)
-                //current->setParent(nullptr);
-                //head = std::make_unique(p.getCurrent()); //TODO:Why not working? 
-        } else if(!left && !right) { //leaf node  
-            //if(current == head) {head.reset();} 
-            if(parent->getLeft() == current)
+            else if(parent->getLeft() == current)
                 parent->setLeft(nullptr);
             else
                 parent->setRight(nullptr);
         } else if(left && !right) { //node with only left child
             
             left->setParent(parent);
-            if(parent->getLeft() == current)
+            if(head.get() == current)
+            {
+                auto new_root = current->releaseLeft();
+                auto del_root = head.release();
+                head.reset(new_root);
+                delete del_root;
+            }
+            else if(parent->getLeft() == current)
             {
                 auto tmp = parent->releaseLeft();
                 tmp->releaseRight();
@@ -513,7 +563,14 @@ void bst<k,v,c>::erase(const k& x){
                 
         } else { //node with only right child 
             right->setParent(parent);
-            if(parent->getLeft() == current)
+            if(head.get() == current)
+            {
+                auto new_root = current->releaseRight();
+                auto del_root = head.release();
+                head.reset(new_root);
+                delete del_root;
+            }
+            else if(parent->getLeft() == current)
             {
                 auto tmp = parent->releaseLeft();
                 tmp->releaseRight();

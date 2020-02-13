@@ -83,32 +83,57 @@ int main(){
 */
 
     std::cout << "Testing the Erase Function :" << std::endl;
-    bst<int, int, std::less<int>> azza{std::less<int>()};
-    azza.insert({8,8});
-    azza.insert({3,3});
-    //azza.insert({6,6});
-    azza[6] = 6;
-    azza.insert({1,1});
-    azza.insert({10,10});
-    azza.insert({7,7});
-    azza.insert({14,14});
-    azza.insert({4,4});
-    azza.insert({13,13});
-    std::cout << "Azza's Tree :"<<std::endl;
-    std::cout << azza << std::endl;
-    //azza.draw();
-    //azza.erase(1); //delete a leaf on left
-    //azza.erase(7); //delete a leaf on right
-    //azza.erase(14); //delete a node that has a node on left only ---> NOT WORKING
-    //azza.draw();
-    //azza.erase(10); //delete a node that has a node on right only ---> NOT WORKING
-    //azza.draw();
-    //azza.erase(6); //delete a node has right and left nodes ---> NOT WORKING
-    
-    azza.erase(8); //delete the root ---> NOT WORKING
-    
-    //azza.erase(20); //delete a key not present
-    azza.draw();
+    std::cout << "Testing the deletion of thr root in all cases : " << std::endl;
+    bst<int, int, std::less<int>> t1{std::less<int>()};
+    std::cout << "delete the root that has only a left child : " << std::endl;
+    t1.insert({8,8});
+    t1.insert({3,3});
+    t1.draw();
+    t1.erase(8);
+    t1.draw(); 
+    bst<int, int, std::less<int>> t2{std::less<int>()};
+    std::cout << "delete the root that has only a right child : " << std::endl;
+    t2.insert({8,8});
+    t2.insert({10,10});
+    t2.draw();
+    t2.erase(8);
+    t2.draw();
+    bst<int, int, std::less<int>> t3{std::less<int>()};
+    std::cout << "delete the root that has right and left childs : " << std::endl;
+    t3.insert({8,8});
+    t3.insert({10,10});
+    t3.insert({3,3});
+    t3.draw();
+    t3.erase(8);
+    t3.draw();
+    bst<int, int, std::less<int>> sartoriE{8,8,std::less<int>()};
+    sartoriE.insert({3,3});
+    sartoriE.insert({6,6});
+    sartoriE.insert({1,1});
+    sartoriE.insert({10,10});
+    sartoriE.insert({7,7});
+    sartoriE.insert({14,14});
+    sartoriE.insert({4,4});
+    sartoriE.insert({13,13});
+    sartoriE.draw();
+    sartoriE.erase(8);
+    sartoriE.draw();
+    sartoriE.erase(20);
+    sartoriE.erase(3);
+    sartoriE.draw();
+    sartoriE.erase(14);
+    sartoriE.draw();
+    sartoriE.erase(10);
+    sartoriE.draw();
+    sartoriE.erase(1);
+    sartoriE.draw();
+    sartoriE.erase(7);
+    sartoriE.draw();
+
+
+
+
+
 /*
     //Emplace test
 

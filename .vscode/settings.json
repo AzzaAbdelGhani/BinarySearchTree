@@ -71,6 +71,7 @@
         "bit": "cpp",
         "memory_resource": "cpp",
         "iterator": "cpp",
-        "__functional_base_03": "cpp"
+        "__functional_base_03": "cpp",
+        "map": "cpp"
     }
 }

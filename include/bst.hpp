@@ -549,8 +549,8 @@ void bst<k,v,c>::erase(const k& x){
             else if(parent->getLeft() == current)
             {
                 auto tmp = parent->releaseLeft();
-                tmp->releaseRight();
-                parent->setLeft(left);
+                tmp->releaseRight(); //why releaseRight? The current node doesn't have a right child!
+                parent->setLeft(left);  
                 delete tmp;
             }
             else
@@ -575,15 +575,15 @@ void bst<k,v,c>::erase(const k& x){
                 auto tmp = parent->releaseLeft();
                 tmp->releaseRight();
                 parent->setLeft(right);
-                tmp->releaseLeft();
+                tmp->releaseLeft(); //Same thing with this: left son does not exist
                 delete tmp;
             }
             else
             {
                 auto tmp = parent->releaseRight();
-                tmp->releaseLeft();
+                tmp->releaseLeft();  //Same thing with this: left son does not exist
                 parent->setRight(right);
-                tmp->releaseRight();
+                tmp->releaseRight(); 
                 delete tmp;
             }
         }

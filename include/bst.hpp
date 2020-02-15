@@ -32,10 +32,6 @@ class node {
         using value_type = T;
 
         //getters
-        //TODO: Should we return a value or a reference to the value? Does this mean we can actually
-        //Modify the value of the node? 
-        //Francesco: Honestly, even returning a reference here is smelly: what does it happen to the
-        //the reference if the node is destroyed?
         T& getValue() { return value;}
         node* getLeft() const {return left.get();}
         node* getRight() const {return right.get();}
@@ -69,13 +65,6 @@ class _iterator {
         using iterator_category =std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
 
-        //Actually a random super good guy said this is compiler doing its things under curtains
-        //"But it's still bad, don't do it"
-        // reference operator*() const noexcept { 
-        //     value_type d = current->getValue();
-        //     value_type &ref = d;
-        //     return ref; 
-        // }
         reference operator*() const noexcept { return(current->getValue()); }
         
         pointer operator->() const noexcept { return &(*(*this)); }
@@ -90,18 +79,7 @@ class _iterator {
             ++(*this);
             return tmp;
         }
-/*
-        _iterator& operator--() noexcept { //pre decrement
-            current = previous();
-            return *this;
-        }
 
-        _iterator operator--(int) noexcept {
-            _iterator tmp{current};
-            --(*this);
-            return tmp;
-        }
-*/
         friend bool operator==(const _iterator& a, const _iterator& b) {
             return a.current == b.current;
         }
@@ -140,6 +118,9 @@ class bst{
 
         std::pair<iterator, bool> insert(const pair_type& x);
         std::pair<iterator, bool> insert(pair_type&& x);
+
+        void insertOrUpdate(const pair_type& x);
+        void insertOrUpdate(pair_type&& x); 
 
         template<class... Types>
         std::pair<iterator,bool> emplace(Types&&... args); 
@@ -249,30 +230,7 @@ node_type* _iterator<node_type,T>::next() noexcept{
     }
     return current;
 }
-/*
 
-template <typename node_type, typename T>
-node_type* _iterator<node_type,T>::previous() noexcept{
-    if(current->getLeft() != nullptr) {
-        current = current->getLeft();
-        while(current->getRight() != nullptr)
-            current = current->getRight();
-    } else {
-        if(current->getParent() == nullptr){
-            return nullptr;
-        }
-
-        while(current->getParent()->getRight() != current){
-                current = current->getParent();
-                if(current->getParent() == nullptr)
-                    return nullptr;
-        }
-
-        current = current->getParent();
-    }
-    return current;
-}
-*/
 ///////////////////////////
 /////                //////
 /////  BST FUNCTIONS //////
@@ -309,7 +267,6 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::begin() const noexcept {
 template <typename k, typename v, typename c>
 typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const noexcept{
 
-    //TODO: maybe just call begin here
     if(head == nullptr)
         return const_iterator(nullptr);
 
@@ -333,19 +290,14 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     
     while (tmp != nullptr){
         new_node = tmp;
-        if (op(x.first,tmp->getValue().first))
-        {
+        if (op(x.first,tmp->getValue().first)) {
             tmp = tmp->getLeft();
-        }
-        else if (op(tmp->getValue().first, x.first))
-        {
+        } else if (op(tmp->getValue().first, x.first)) {
             tmp = tmp->getRight();
-        }  
-        else{
+        } else{
             //if the key is already exist 
-             return(std::make_pair(iterator(),false));
+            return(std::make_pair(iterator(tmp),false));
         }
-        
     }
 
     tmp = std::make_unique<node_type>(x, new_node);
@@ -357,6 +309,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     }
      
     return(std::make_pair(iterator(tmp),true)); 
+}
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::insertOrUpdate(const pair_type& x){
+    auto tmp = insert(x);
+    if(!tmp.second)
+        (*(tmp.first)).second = x.second;
 }
 
 template <typename k, typename v, typename c>
@@ -372,17 +331,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     
     while (tmp != nullptr){
         new_node = tmp;
-        if (op(x.first,tmp->getValue().first))
-        {
+        if (op(x.first,tmp->getValue().first)) {
             tmp = tmp->getLeft();
-        }
-        else if (op(tmp->getValue().first,x.first))
-        {
+        } else if (op(tmp->getValue().first,x.first)) {
             tmp = tmp->getRight();
-        }  
-        else{
+        } else{
             //if the key is already exist 
-             return(std::pair<iterator, bool> (iterator(),false));
+             return(std::pair<iterator, bool> (iterator(tmp),false));
         } 
     }
     tmp = new node_type(std::move(x), new_node);
@@ -393,6 +348,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
         new_node->setRight(tmp);
     }
     return(std::make_pair(iterator(tmp),true)); 
+}
+
+template <typename k, typename v, typename c>
+void bst<k,v,c>::insertOrUpdate(pair_type&& x){
+    auto tmp = insert(std::move(x));
+    if(!tmp.second)
+        (*(tmp.first)).second = x.second;
 }
 
 template <typename k, typename v, typename c>
@@ -441,7 +403,6 @@ template <typename k, typename v, typename c>
 void bst<k,v,c>::erase(const k& x){
 
     iterator p = find(x);
-    //iterator q = p;
 
     if(p == end()) { //if the key is not in the tree
         std::cout<< "The tree doesn't have this key" << std::endl;
@@ -460,36 +421,25 @@ void bst<k,v,c>::erase(const k& x){
             _current->setLeft(tmp);
             tmp->setParent(_current);
 
-
-            if(_parent == current)
-            {
+            if(_parent == current) {
                 auto tmp_next = _parent->releaseRight();
-                if(head.get() == current)
-                {
+                if(head.get() == current) {
                     auto del_root = head.release();
                     head.reset(tmp_next);
                     delete del_root;
-                }
-                else if(parent->getLeft() == current)
-                {
+                } else if(parent->getLeft() == current) {
                     auto tmp_current = parent->releaseLeft();
                     parent->setLeft(tmp_next);
                     delete tmp_current;
-                }
-                else 
-                {
+                } else {
                     auto tmp_current = parent->releaseRight();
                     parent->setRight(tmp_next);
                     delete tmp_current;
                 }
                 tmp_next->setParent(parent);
-
-            }
-            else 
-            {
+            } else {
                 auto tmp_next = _parent->releaseLeft();
-                if(_right)
-                {
+                if(_right) {
                     auto tmp_right = _current->releaseRight();
                     _parent->setLeft(tmp_right);
                     tmp_right->setParent(_parent);
@@ -499,35 +449,24 @@ void bst<k,v,c>::erase(const k& x){
                 tmp_next->setRight(tmp_parent);
                 tmp_parent->setParent(tmp_next);
                 
-                if(head.get() == current)
-                {
+                if(head.get() == current) {
                     auto del_root = head.release();
                     head.reset(tmp_next);
                     delete del_root;
-                }
-                else if (parent->getLeft() == current)
-                {
+                } else if (parent->getLeft() == current) {
                     auto tmp_current = parent->releaseLeft();
                     parent->setLeft(tmp_next);
                     delete tmp_current;
-                }
-                else
-                {
+                } else {
                     auto tmp_current = parent->releaseRight();
                     parent->setRight(tmp_next);
-                    delete tmp_current;
-                    
+                    delete tmp_current;    
                 }
-                tmp_next->setParent(parent);
-                
-                
+                tmp_next->setParent(parent);  
             }
-
-
         } else if(!left && !right) { //leaf node  
              
-            if(head.get() == current)
-            {
+            if(head.get() == current) {
                 auto del_root = head.release();
                 head.reset(nullptr);
                 delete del_root;
@@ -539,47 +478,36 @@ void bst<k,v,c>::erase(const k& x){
         } else if(left && !right) { //node with only left child
             
             left->setParent(parent);
-            if(head.get() == current)
-            {
+            if(head.get() == current) {
                 auto new_root = current->releaseLeft();
                 auto del_root = head.release();
                 head.reset(new_root);
                 delete del_root;
-            }
-            else if(parent->getLeft() == current)
-            {
+            } else if(parent->getLeft() == current) {
                 auto tmp = parent->releaseLeft();
                 tmp->releaseRight(); //why releaseRight? The current node doesn't have a right child!
                 parent->setLeft(left);  
                 delete tmp;
-            }
-            else
-            {
+            } else {
                 auto tmp = parent->releaseRight();
                 tmp->releaseLeft();
                 parent->setRight(left);
                 delete tmp;
-            }
-                
+            }      
         } else { //node with only right child 
             right->setParent(parent);
-            if(head.get() == current)
-            {
+            if(head.get() == current) {
                 auto new_root = current->releaseRight();
                 auto del_root = head.release();
                 head.reset(new_root);
                 delete del_root;
-            }
-            else if(parent->getLeft() == current)
-            {
+            } else if(parent->getLeft() == current) {
                 auto tmp = parent->releaseLeft();
                 tmp->releaseRight();
                 parent->setLeft(right);
                 tmp->releaseLeft(); //Same thing with this: left son does not exist
                 delete tmp;
-            }
-            else
-            {
+            } else {
                 auto tmp = parent->releaseRight();
                 tmp->releaseLeft();  //Same thing with this: left son does not exist
                 parent->setRight(right);
@@ -684,7 +612,7 @@ void bst<k,v,c>::drawRec(const std::string& prefix, node_type* x, bool isLeft) {
         std::cout << (isLeft ? "├──" : "└──" );
 
         // print the value of the node
-        std::cout << x->getValue().first << std::endl;
+        std::cout << x->getValue().second << std::endl;
 
         // enter the next tree level - left and right branch
         drawRec( prefix + (isLeft ? "│   " : "    "), x->getLeft(), true);

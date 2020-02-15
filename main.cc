@@ -80,7 +80,7 @@ int main(){
     
     std::cout << "sartoriTris after sartoriBis = std::move(sartoriTris) ? " << std::endl;
     std::cout << sartoriTris << std::endl;
-*/
+
 
     std::cout << "Testing the Erase Function :" << std::endl;
     std::cout << "Testing the deletion of thr root in all cases : " << std::endl;
@@ -134,7 +134,7 @@ int main(){
 
 
 
-/*
+
     //Emplace test
 
     std::cout << "sartoriBis after emplace of (20,20)" << std::endl;
@@ -194,7 +194,7 @@ int main(){
         abba.insert({2,2});
         std::cout<< abba << std::endl;
 
-
+*/
         //Construct S.A.R.T.O.R.I. (Something abstract related to our recursive implementation)
         bst<int, int, std::less<int>> sartori{8,8,std::less<int>()};
         sartori.insert({3,3});
@@ -205,10 +205,11 @@ int main(){
         sartori.insert({14,14});
         sartori.insert({4,4});
         sartori.insert({13,13});
+        sartori.insertOrUpdate({13,13});
 
         std::cout << "Sartori" << std::endl;
-        std::cout<< sartori << std::endl;
-
+        sartori.draw();
+/*
         std::cout << sartori[9] << std::endl;
         //std::cout << sartori[60] << std::endl;
         //std::cout<< sartori << std::endl;

@@ -7,7 +7,7 @@
 //It would be nice to have a wrapper function handling times and their averages but it would
 //probably be a little painful to generalise it
 
-enum class method{ insert, emplace, find};
+enum class method{ insert, emplace, find, erase};
 
 template<class T>
 void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, const method &m);
@@ -55,6 +55,12 @@ int main(){
     std::cout << N << " unbalanced finds on map" << std::endl;
     unbalancedRun<map>(N, reps, map1, method::find);
 
+    std::cout << N << " unbalanced erase on bst" << std::endl;
+    unbalancedRun<bst>(N, reps, bst1, method::erase);
+
+    std::cout << N << " unbalanced erase on map" << std::endl;
+    unbalancedRun<map>(N, reps, map1, method::erase);
+
     //Random insert 
 
     std::cout << N << " random inserts on bst" << std::endl;
@@ -74,6 +80,12 @@ int main(){
 
     std::cout << N << " random finds on map" << std::endl;
     randomRun<map>(N, reps, map1, method::find);
+
+    std::cout << N << " random erase on bst" << std::endl;
+    randomRun<bst>(N, reps, bst1, method::erase);
+
+    std::cout << N << " random erase on map" << std::endl;
+    randomRun<map>(N, reps, map1, method::erase);
 
     //We insert an unbalanced tree, balance it and then run find 
 
@@ -120,8 +132,6 @@ void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, co
                 break;
         }
             
-
-
         end = std::chrono::steady_clock::now();
         avg += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
         avg_2 += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count()
@@ -131,6 +141,17 @@ void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, co
     avg = static_cast<double>(avg)/rep;
     avg_2 = static_cast<double>(avg_2)/rep;
     auto std_dev = avg_2 - avg*avg;
+
+    if(m == method::erase){
+        begin = std::chrono::steady_clock::now();
+        for(unsigned int k = 0; k < n; ++k){
+            object.erase(k);
+        }
+        end = std::chrono::steady_clock::now();
+        avg = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+        std_dev = 0;
+    } 
+
 
     std::cout << "Average: " << avg << " (ms)" << std::endl;  
     std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  
@@ -192,6 +213,18 @@ void randomRun(const unsigned int &n, const unsigned int &rep, T &object, const 
     avg = static_cast<double>(avg)/rep;
     avg_2 = static_cast<double>(avg_2)/rep;
     auto std_dev = avg_2 - avg*avg;
+
+    
+    if(m == method::erase){
+        begin = std::chrono::steady_clock::now();
+        for(unsigned int k = 0; k < n; ++k){
+            auto tmp = dis(gen);
+            object.erase(tmp);
+        }
+        end = std::chrono::steady_clock::now();
+        avg = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+        std_dev = 0;
+    } 
 
     std::cout << "Average: " << avg << " (ms)" << std::endl;  
     std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  

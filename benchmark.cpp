@@ -2,141 +2,229 @@
 #include <map>
 #include <chrono>
 #include <random>
+#include <cmath>
 
-enum class method{ insert, find, emplace};
+//It would be nice to have a wrapper function handling times and their averages but it would
+//probably be a little painful to generalise it
+
+enum class method{ insert, emplace, find};
+
+template<class T>
+void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, const method &m);
+
+template<class T>
+void randomRun(const unsigned int &n, const unsigned int &rep, T &object, const method &m);
+
+void balancedFind(const unsigned int &n, const unsigned int &rep, bst<int, int, std::less<int>> &object);
+
 
 int main(){
 
     //Benchmark variables
     constexpr unsigned int N = 5000;
+    constexpr unsigned int reps = 20;
 
     //This code provides a benchmark of our class bst with respect to the standard library implementation
     //of map
 
-    bst<int, int, std::less<int>> bst1{std::less<int>()};
-    std::map<int, int> map1;
-    
+    // bst<int, int, std::less<int>> bst1{std::less<int>()};
+    // std::map<int, int> map1;
+    using bst = bst<int, int, std::less<int>>;
+    using map = std::map<int, int>;
+
+    bst bst1{std::less<int>()};
+    map map1;
+
     //Unbalanced insert 
 
     std::cout << N << " unbalanced inserts on bst" << std::endl;
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
-    for(unsigned int i = 0; i < N; ++i){
-        bst1.insert(std::make_pair(i,i));
-    }
-
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
+    unbalancedRun<bst>(N, reps, bst1, method::insert);
 
     std::cout << N << " unbalanced inserts on map" << std::endl;
-     begin = std::chrono::steady_clock::now();
-    for(unsigned int i = 0; i < N; ++i){
-        map1.insert(std::make_pair(i,i));
+    unbalancedRun<map>(N, reps, map1, method::insert);
+
+    std::cout << N << " unbalanced emplaces on bst" << std::endl;
+    unbalancedRun<bst>(N, reps, bst1, method::emplace);
+
+    std::cout << N << " unbalanced emplaces on map" << std::endl;
+    unbalancedRun<map>(N, reps, map1, method::emplace);
+
+    std::cout << N << " unbalanced finds on bst" << std::endl;
+    unbalancedRun<bst>(N, reps, bst1, method::find);
+
+    std::cout << N << " unbalanced finds on map" << std::endl;
+    unbalancedRun<map>(N, reps, map1, method::find);
+
+    //Random insert 
+
+    std::cout << N << " random inserts on bst" << std::endl;
+    randomRun<bst>(N, reps, bst1, method::insert);
+
+    std::cout << N << " random inserts on map" << std::endl;
+    randomRun<map>(N, reps, map1, method::insert);
+
+    std::cout << N << " random emplaces on bst" << std::endl;
+    randomRun<bst>(N, reps, bst1, method::emplace);
+
+    std::cout << N << " random emplaces on map" << std::endl;
+    randomRun<map>(N, reps, map1, method::emplace);
+
+    std::cout << N << " random finds on bst" << std::endl;
+    randomRun<bst>(N, reps, bst1, method::find);
+
+    std::cout << N << " random finds on map" << std::endl;
+    randomRun<map>(N, reps, map1, method::find);
+
+    //We insert an unbalanced tree, balance it and then run find 
+
+    std::cout << N << " balanced inserts on bst" << std::endl;
+    unbalancedRun(N, reps, bst1, method::insert);
+
+    std::cout << N << " balanced finds on bst" << std::endl;
+    balancedFind(N, reps, bst1);
+
+}
+
+template<class T>
+void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, const method &m){
+
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
+    double avg = 0;
+    double avg_2 = 0;
+
+    for(unsigned int i = 0; i < rep; ++i){
+
+        begin = std::chrono::steady_clock::now();
+
+        switch (m)
+        {
+            case method::insert:
+                object.clear();
+                for(unsigned int k = 0; k < n; ++k)
+                    object.insert(std::make_pair(k,k));
+                break;
+            
+            case method::emplace:
+                object.clear();
+                for(unsigned int k = 0; k < n; ++k)
+                    object.emplace(k,k);
+                break;
+            
+            case method::find:
+                for(unsigned int k = 0; k < n; ++k)
+                    object.find(k);
+                break;
+
+            default:
+                break;
+        }
+            
+
+
+        end = std::chrono::steady_clock::now();
+        avg += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+        avg_2 += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count()
+                *std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
     }
 
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
+    avg = static_cast<double>(avg)/rep;
+    avg_2 = static_cast<double>(avg_2)/rep;
+    auto std_dev = avg_2 - avg*avg;
 
+    std::cout << "Average: " << avg << " (ms)" << std::endl;  
+    std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  
+    
+}
 
-    std::cout << N << " finds on unbalanced bst" << std::endl;
-    begin = std::chrono::steady_clock::now();
-
-    for(unsigned int i = 0; i < N; ++i){
-        bst1.find(i);
-    }
-
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
-
-    std::cout << N << " finds on map" << std::endl;
-    begin = std::chrono::steady_clock::now();
-    for(unsigned int i = 0; i < N; ++i){
-        map1.find(i);
-    }
-
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
-
-
-    //Clear the trees
-    std::cout << "Clearing the trees" << std::endl;
-    bst1.clear();
-    map1.clear();
-
-
-
-
-
-    //Clear the trees
-    std::cout << "Clearing the trees" << std::endl;
-    bst1.clear();
-    map1.clear();
-
-
-    //Inserting random numbers
+template<class T>
+void randomRun(const unsigned int &n, const unsigned int &rep, T &object, const method &m){
 
     //Using the std uniform int distribution
     std::random_device rd;  
     std::mt19937 gen(rd()); 
-    std::uniform_int_distribution<> dis(1, N); //This way we might end up with duplicates numbers
-    //so insert should just not put them in the bst
+    std::uniform_int_distribution<> dis(1, n); //This way we might end up with duplicates numbers
 
-    std::cout << N << " random inserts bst" << std::endl;
-    begin = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
+    double avg = 0;
+    double avg_2 = 0;
 
-    for(unsigned int i = 0; i < N; ++i){
-        auto tmp = dis(gen);
-        bst1.insert(std::make_pair(tmp,tmp));
+    for(unsigned int i = 0; i < rep; ++i){
+
+        begin = std::chrono::steady_clock::now();
+
+        switch (m)
+        {
+            case method::insert:
+                object.clear();
+                for(unsigned int k = 0; k < n; ++k){
+                    auto tmp = dis(gen);
+                    object.insert(std::make_pair(tmp,tmp));
+                }
+                break;
+            
+            case method::emplace:
+                object.clear();
+                for(unsigned int k = 0; k < n; ++k){
+                    auto tmp = dis(gen);
+                    object.emplace(tmp,tmp);
+                }
+                break;
+            
+            case method::find:
+                for(unsigned int k = 0; k < n; ++k){
+                    auto tmp = dis(gen);
+                    object.find(tmp);
+                }
+                break;
+
+            default:
+                break;
+        }
+            
+        end = std::chrono::steady_clock::now();
+        avg += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+        avg_2 += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count()
+                *std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
     }
 
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
+    avg = static_cast<double>(avg)/rep;
+    avg_2 = static_cast<double>(avg_2)/rep;
+    auto std_dev = avg_2 - avg*avg;
 
-
-    std::cout << N << " random inserts map" << std::endl;
-    begin = std::chrono::steady_clock::now();
-
-    for(unsigned int i = 0; i < N; ++i){
-        auto tmp = dis(gen);
-        map1.insert(std::make_pair(tmp,tmp));
-    }
-
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
-
-
-    //Random finds
-
-    std::cout << N << " random finds bst" << std::endl;
-    begin = std::chrono::steady_clock::now();
-
-    for(unsigned int i = 0; i < N; ++i){
-        auto tmp = dis(gen);
-        bst1.find(tmp);
-    }
-
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
-
-
-    std::cout << N << " random finds map" << std::endl;
-    begin = std::chrono::steady_clock::now();
-
-    for(unsigned int i = 0; i < N; ++i){
-        auto tmp = dis(gen);
-        map1.find(tmp);
-    }
-
-    end = std::chrono::steady_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " (ms)" << std::endl;  
-
-
-    //Clear the trees
-    std::cout << "Clearing the trees" << std::endl;
-    bst1.clear();
-    map1.clear();
-
+    std::cout << "Average: " << avg << " (ms)" << std::endl;  
+    std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  
+    
 }
 
-// template<class T>
-// void run(T object, )
+
+void balancedFind(const unsigned int &n, const unsigned int &rep, bst<int, int, std::less<int>> &object){
+
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
+    double avg = 0;
+    double avg_2 = 0;
+    object.balance();
+
+    for(unsigned int i = 0; i < rep; ++i){
+
+        begin = std::chrono::steady_clock::now();
+
+        for(unsigned int k = 0; k < n; ++k)
+            object.find(k);
+            
+        end = std::chrono::steady_clock::now();
+        avg += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+        avg_2 += std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count()
+                *std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+    }
+
+    avg = static_cast<double>(avg)/rep;
+    avg_2 = static_cast<double>(avg_2)/rep;
+    auto std_dev = avg_2 - avg*avg;
+
+    std::cout << "Average: " << avg << " (ms)" << std::endl;  
+    std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  
+
+}

@@ -1,7 +1,7 @@
 #include <bst.hpp>
 
 int main(){
-    try{
+    try{ 
         std::cout << "Four trees built through all possibile ctor" << std::endl << std::endl;
         std::cout << "In general we are building trees with key = value" << std::endl << std::endl;
 
@@ -170,27 +170,6 @@ int main(){
         t3.draw();
         std::cout << std::endl;
 
-/*
-    //getters Test: we try to see what we can achieve with actually returning a reference with begin
-
-    //uselessVariable actually does not modify anything BUT it seems it is storing a value
-    //since it will still be alive even when the tree is dead
-    
-    auto uselessVariable = *(sartoriBis.begin());
-    (*(sartoriBis.begin())).second = 10;
-    std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
-    uselessVariable.second = 3;
-    std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
-
-    std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
-    std::cout << "sartoriBis BOOM!" << std::endl;
-
-    sartoriBis.clear();
-
-    //actually uselessVariableKey is still alive! Even though sartoriBis is clearly not
-    std::cout << "Hi, I am the first value of sartoriBis: " << uselessVariable.second << std::endl;
-    std::cout << "sartoriBis " << std::endl << sartoriBis<< std::endl;
-*/  
     } catch(const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return 1;

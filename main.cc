@@ -61,7 +61,8 @@ int main(){
         treeBis.insert({14,14});
         treeBis.insert({4,4});
         treeBis.insert({13,13});
-        treeBis.insertOrUpdate({13,13});
+        if(!treeBis.insert({13,13}).second)
+            treeBis[13]=13;
         treeBis.draw();
         std::cout << std::endl;
 
@@ -169,6 +170,10 @@ int main(){
         t3.erase(8);
         t3.draw();
         std::cout << std::endl;
+
+        auto it = t3.find(3);
+        (*it).second = 4;
+        std::cout << (*it).second << std::endl;
 
     } catch(const std::exception &e) {
         std::cerr << e.what() << std::endl;

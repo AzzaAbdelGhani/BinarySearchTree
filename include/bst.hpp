@@ -144,7 +144,7 @@ class bst{
         const_iterator cend() const noexcept { return const_iterator{nullptr};}
 
         iterator find(const k& x) noexcept; 
-        const_iterator find(const k& x) const; 
+        const_iterator find(const k& x) const noexcept; 
 
         void balance(); 
 
@@ -159,7 +159,7 @@ class bst{
         }
 
         v& operator[](k&& x){
-            iterator it = find(std::move(x));
+            auto it = find(x);
             if(it != end())
                 return (*it).second;
             else {
@@ -170,7 +170,7 @@ class bst{
 
         friend
         std::ostream& operator<<(std::ostream& os, const bst& x){
-            auto it = x.begin();
+            auto it = x.begin(); //auto will be const_iterator
             while (it != x.end()) {
                 os << (*it).second << " ";
                 ++it;
@@ -358,7 +358,7 @@ typename bst<k,v,c>::iterator bst<k,v,c>::find(const k& x) noexcept{
 }
 
 template <typename k, typename v, typename c>
-typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
+typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const noexcept{
         
     auto it = const_iterator(head.get());
     while(it.getCurrent() != nullptr ){
@@ -370,7 +370,7 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::find(const k& x) const{
         else
             return(const_iterator(it)); 
     }
-    return end();
+    return cend();
 }
 
 template <typename k, typename v, typename c>
@@ -498,7 +498,7 @@ void bst<k,v,c>::balance() {
 
     //copying ordered values in a vector 
     std::vector<pair_type> values;
-    auto it = begin();
+    auto it = cbegin();
     while(it.getCurrent() != nullptr){
         values.push_back((*it));
         it++;

@@ -436,6 +436,7 @@ void bst<k,v,c>::erase(const k& x){
                 delete del_root;
             } else if(parent->getLeft() == current) {
                 auto tmp = parent->releaseLeft();
+                tmp->releaseLeft();
                 parent->setLeft(left);  
                 delete tmp;
             } else {

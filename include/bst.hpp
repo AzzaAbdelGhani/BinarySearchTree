@@ -463,7 +463,6 @@ void bst<k,v,c>::erase(const k& x){
             }
         }
     }
-    
 }
 
 template <typename k, typename v, typename c>

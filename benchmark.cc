@@ -35,7 +35,7 @@ int main(){
     bst bst1{std::less<int>()};
     map map1;
 
-    //Unbalanced insert 
+    //Unbalanced 
 
     std::cout << N << " unbalanced inserts on bst" << std::endl;
     unbalancedRun<bst>(N, reps, bst1, method::insert);
@@ -61,7 +61,7 @@ int main(){
     std::cout << N << " unbalanced erase on map" << std::endl;
     unbalancedRun<map>(N, reps, map1, method::erase);
 
-    //Random insert 
+    //Random 
 
     std::cout << N << " random inserts on bst" << std::endl;
     randomRun<bst>(N, reps, bst1, method::insert);
@@ -151,7 +151,6 @@ void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, co
         avg = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
         std_dev = 0;
     } 
-
 
     std::cout << "Average: " << avg << " (ms)" << std::endl;  
     std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  

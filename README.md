@@ -63,7 +63,7 @@ The main cons is that we are exposing the Iterator class as public, even though 
 | **FIND**   |           303           |   6   |       2.6          | 0.5 |         1.3            | 0.2 |       1.6          | 0.5 |
 | **ERASE**  |            1            |   1   |        3           |  1  |          2             |  1  |        2           |  1  | 
 
-
+The benchmark was performed against `std::map`, repeating the same functions for 5000 different values taken sequentially or randomly. Inserting an ordered sequence of values results in a totally unbalanced BST, while `std::map` is able to perform a balanced insertion. Therefore this is the worst case scenario for our container and the results are pretty abysmal compared to the standard library. However, using random numbers in insertion leads to a random structure of the BST, and the timings taken in this case are really close to the performances of STL.
 
 ### Functions
 

@@ -262,8 +262,6 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const noexcept{
 
 template <typename k, typename v, typename c>
 std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
-    
-    std::cout << "L-Val insert" << std::endl;
 
     if (head == nullptr){
         head = std::make_unique<node_type>(x, nullptr);;
@@ -271,7 +269,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
     }
     
     node_type* new_node = nullptr;  
-    auto tmp = head.get() ;
+    auto tmp = head.get();
     
     while (tmp != nullptr){
         new_node = tmp;
@@ -374,7 +372,7 @@ void bst<k,v,c>::erase(const k& x){
 
             if(_parent == current) {
                 auto tmp_next = _parent->releaseRight();
-                if(head.get() == current) {
+                if(head.get() == current) { 
                     auto del_root = head.release();
                     head.reset(tmp_next);
                     delete del_root;
@@ -436,6 +434,7 @@ void bst<k,v,c>::erase(const k& x){
                 delete del_root;
             } else if(parent->getLeft() == current) {
                 auto tmp = parent->releaseLeft();
+                tmp->releaseLeft();
                 parent->setLeft(left);  
                 delete tmp;
             } else {
@@ -473,7 +472,7 @@ void bst<k,v,c>::balance() {
     //copying ordered values in a vector 
     std::vector<pair_type> values;
     auto it = cbegin();
-    while(it.getCurrent() != nullptr){
+    while(it != cend()){
         values.push_back((*it));
         it++;
     }

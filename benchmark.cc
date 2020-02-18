@@ -35,7 +35,7 @@ int main(){
     bst bst1{std::less<int>()};
     map map1;
 
-    //Unbalanced insert 
+    //Unbalanced 
 
     std::cout << N << " unbalanced inserts on bst" << std::endl;
     unbalancedRun<bst>(N, reps, bst1, method::insert);
@@ -45,36 +45,53 @@ int main(){
 
     std::cout << N << " unbalanced emplaces on bst" << std::endl;
     unbalancedRun<bst>(N, reps, bst1, method::emplace);
+
     std::cout << N << " unbalanced emplaces on map" << std::endl;
     unbalancedRun<map>(N, reps, map1, method::emplace);
+
     std::cout << N << " unbalanced finds on bst" << std::endl;
     unbalancedRun<bst>(N, reps, bst1, method::find);
+
     std::cout << N << " unbalanced finds on map" << std::endl;
     unbalancedRun<map>(N, reps, map1, method::find);
+
     std::cout << N << " unbalanced erase on bst" << std::endl;
     unbalancedRun<bst>(N, reps, bst1, method::erase);
+
     std::cout << N << " unbalanced erase on map" << std::endl;
     unbalancedRun<map>(N, reps, map1, method::erase);
-    //Random inser
+
+    //Random 
+
     std::cout << N << " random inserts on bst" << std::endl;
     randomRun<bst>(N, reps, bst1, method::insert);
+
     std::cout << N << " random inserts on map" << std::endl;
     randomRun<map>(N, reps, map1, method::insert);
+
     std::cout << N << " random emplaces on bst" << std::endl;
     randomRun<bst>(N, reps, bst1, method::emplace);
+
     std::cout << N << " random emplaces on map" << std::endl;
     randomRun<map>(N, reps, map1, method::emplace);
+
     std::cout << N << " random finds on bst" << std::endl;
     randomRun<bst>(N, reps, bst1, method::find);
+
     std::cout << N << " random finds on map" << std::endl;
     randomRun<map>(N, reps, map1, method::find);
+
     std::cout << N << " random erase on bst" << std::endl;
     randomRun<bst>(N, reps, bst1, method::erase);
+
     std::cout << N << " random erase on map" << std::endl;
     randomRun<map>(N, reps, map1, method::erase);
-    //We insert an unbalanced tree, balance it and then run fin
+
+    //We insert an unbalanced tree, balance it and then run find 
+
     std::cout << N << " balanced inserts on bst" << std::endl;
     unbalancedRun(N, reps, bst1, method::insert);
+
     std::cout << N << " balanced finds on bst" << std::endl;
     balancedFind(N, reps, bst1);
 
@@ -134,7 +151,6 @@ void unbalancedRun(const unsigned int &n, const unsigned int &rep, T &object, co
         avg = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
         std_dev = 0;
     } 
-
 
     std::cout << "Average: " << avg << " (ms)" << std::endl;  
     std::cout << "Std Deviation: " << std_dev << " (ms)" << std::endl << std::endl;  

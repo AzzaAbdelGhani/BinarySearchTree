@@ -262,8 +262,6 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const noexcept{
 
 template <typename k, typename v, typename c>
 std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
-    
-    std::cout << "L-Val insert" << std::endl;
 
     if (head == nullptr){
         head = std::make_unique<node_type>(x, nullptr);;
@@ -465,7 +463,6 @@ void bst<k,v,c>::erase(const k& x){
             }
         }
     }
-    
 }
 
 template <typename k, typename v, typename c>

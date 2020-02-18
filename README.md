@@ -43,7 +43,7 @@ This last class allows us to iterate through the BST without extern any implemet
 ### Implementation choices
 There were important choices that had been taken at the beginning of the implementation:
 
-- First of all we decided to separate all the classes. There are advantages and disadvantages with this choice. We want to do this because if the classes were nested inside the BST, we would have to repeat the templates of the BST class for every function implementation of the nested classes. This would also mean that if we changed the BST templates we would need to modify all these functions. Moreover, in this way, the Node class is reusable on different types of BSTs.
+- First of all we decided to separate all the classes. There are advantages and disadvantages, but we chose this because, if the classes were nested inside the BST, we would have to repeat the templates of the BST class for every function implementation of the nested classes. This would also mean that if we changed the BST templates we would need to modify all these functions. Moreover, in this way, the Node class is reusable on different types of BSTs.
 The main cons is that we are exposing the Iterator class as public, even though it is specific for our implemetation of the tree.
 
 - Another important choice was deciding the type of the pointers involved. In our opinion, the two children and the head could have been either unique or raw pointers. We ended up in choosing unique pointers bacause they allow us not to care about deallocation of the memory, even if we realised that the erase function became more complicated, due to the reallocation of the pointers. Instead, we were forced to use a raw pointer for the parent, because every node is a child of some other node (except from the head), therefore it is not possible to use unique ones.
@@ -55,6 +55,14 @@ The main cons is that we are exposing the Iterator class as public, even though 
 ### Benchmark results
 
 
+|            | **BST unbalanced (ms)** |       | **BST random (ms)**|     | **MAP unbalanced (ms)**|     | **MAP random (ms)**|     | 
+|------------|:-------------------------:|:-------:|:--------------------:|:-----:|:------------------------:|:-----:|:--------------------:|:-----:|
+|            |           AVG           |   SD  |       AVG          |  SD |         AVG            |  SD |       AVG          |  SD |
+| **INSERT** |          286.4          | 111.9 |       2.7          | 0.6 |         2.3            | 0.3 |       2.4          | 0.4 |
+| **EMPLACE**|           280           |  3.2  |       2.4          | 0.4 |         2.5            | 0.5 |       2.4          | 0.4 |
+| **FIND**   |           303           |   6   |       2.6          | 0.5 |         1.3            | 0.2 |       1.6          | 0.5 |
+| **ERASE**  |            1            |   1   |        3           |  1  |          2             |  1  |        2           |  1  | 
+
 
 
 ### Functions
@@ -65,7 +73,7 @@ The main cons is that we are exposing the Iterator class as public, even though 
 std::pair<iterator, bool> insert(const pair_type& x);
 std::pair<iterator, bool> insert(pair_type&& x);
 ```
-They are used to insert a new node. The function returns a pair of an iterator (pointing to the node) and a bool. The bool is true if a new node has been allocated, false otherwise (i.e., the key was already present in the tree). 
+Inserts a new node and returns a pair of an iterator (pointing to the node) and a bool. The bool is true if a new node has been allocated, false otherwise (i.e., the key was already present in the tree). 
 
 
 ##### Emplace
@@ -74,14 +82,14 @@ They are used to insert a new node. The function returns a pair of an iterator (
 template< class... Types >
 std::pair<iterator,bool> emplace(Types&&... args);
 ```
-Inserts a new element into the container constructed in-place with the given args, By invoking the insert() function with argument of pair type.
+Inserts a new element into the container constructed in-place with the given args, by invoking the insert() function with an argument of pair type.
 
 ##### Clear
 
 ```c++
 void clear();
 ```
-Clear the content of the tree by `reset` the head pointer.
+Clears the content of the tree by `reset` the head pointer.
 
 ##### Begin
 
@@ -91,7 +99,7 @@ const_iterator begin() const;
 const_iterator cbegin() const;
 ```
 
-Checks if the head is a null pointer (the tree is empty), return an iterator pointing to null. Otherwise, it returns an iterator to the left-most node of the head . 
+Returns an iterator pointing to the left-most node of the head, or to nullpointer if the tree is empty.
 
 ##### End
 
@@ -101,7 +109,7 @@ const_iterator end() const;
 const_iterator cend() const;
 ```
 
-Return an iterator to one-past the last element.
+Returns an iterator to one-past the last element.
 
 ##### Find
 
@@ -109,7 +117,7 @@ Return an iterator to one-past the last element.
 iterator find(const key_type& x);
 const_iterator find(const key_type& x) const;
 ```
-Find a given key by traversing the tree: if the key is larger than the current node's key, it will seek on the right, otherwise on left. If the key is already present, it returns an iterator to the proper node, `end()` otherwise.
+Finds a given key by traversing the tree: if the key is larger than the current node's key, it will seek on the right, otherwise on left. If the key is already present, it returns an iterator to the proper node, `end()` otherwise.
 
 ##### Balance
 
@@ -117,7 +125,7 @@ Find a given key by traversing the tree: if the key is larger than the current n
 void balance();
 ```
 
-Balance the tree by copying the values of the tree into a vector, the copy process will be in ascending order, in other words, start from the begin of the tree to the end. Then, clear the tree, and restart building it by recursively dividing the vector into two halves and inserting the middle value of the vector. 
+Balances the tree by copying the values of the nodes into a vector in ascending order, in other words, starting from the begin to the end. Then, clear the tree and restart building it by recursively dividing the vector into two halves and inserting the middle value of the vector. 
 
 ##### Subscripting operator
 
@@ -134,7 +142,7 @@ Returns a reference to the value that is mapped to a key equivalent to `x` by ca
 friend
 std::ostream& operator<<(std::ostream& os, const bst& x);
 ```
-Here, we return a reference to ostream object that contains all values of the nodes from the begin() of the tree to the end().
+Here, we return a reference to ostream object that contains all values of the nodes from the begin() to the end().
 
 ##### Copy and move
 
@@ -147,4 +155,4 @@ Meanwhile, for the move constructor and assignment, we've just put them equal to
 void erase(const key_type& x);
 ```
 
-Removes the element (if one exists) with the key equivalent to the given key. it will check the state of the node: it could be a full node, so having right and left children, or it could have just one child either on right or left, a leaf otherwise.
+Removes the element (if one exists) with the key equivalent to the given key. It checks the state of the node: it could be a full node, so having right and left children, or it could have just one child either on right or left, a leaf otherwise.

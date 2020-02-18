@@ -1,7 +1,6 @@
 #ifndef __bst_hpp
 #define __bst_hpp
 
-#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <iterator>
@@ -17,8 +16,10 @@ class node {
     node* parent;
 
     public:
-        node(T p): value{p}, parent{nullptr} {};
-        node(T p, node* n): value{p}, parent{n} {};
+        node(const T &p): value{p}, parent{nullptr} {};
+        node(T &&p): value{std::move(p)}, parent{nullptr} {};
+        node(const T &p, node* n): value{p}, parent{n} {};
+        node(T &&p, node* n): value{std::move(p)}, parent{n} {};
         // Explicit node copy constructor
         explicit node(const std::unique_ptr<node> &p, node* parent): value{p->value}{
             this->parent = parent;
@@ -103,7 +104,6 @@ class bst{
 
     // private functions for tree balance
     void balanceRec(std::vector<pair_type> values, size_t n);
-    bool isBalanced(node_type* x) noexcept;
     int height(node_type* x) noexcept {return (x == nullptr) ? 0 : 1 + std::max(height(x->getLeft()), height(x->getRight()));};
     void drawRec(const std::string& prefix, node_type* x, bool isLeft) noexcept;
 
@@ -119,17 +119,6 @@ class bst{
         std::pair<iterator, bool> insert(const pair_type& x);
         std::pair<iterator, bool> insert(pair_type&& x);
 
-        void insertOrUpdate(const pair_type& x);
-        void insertOrUpdate(pair_type&& x); 
-
-        //https://en.cppreference.com/w/cpp/container/map/emplace here is the stl reference for map
-        //Which is implemented as a red-black tree (btw, I think we should use exactly this container
-        //to benchmark our code).
-        //I am 100% convinced after reading stuff on the web that only one element should be inserted
-        //The trick is the following: make_pair strictly requires two arguments and builds a pair of that type
-        //Invoking the pair_type constructor instead allows us to exploit all the predefined std::pair move
-        //constructors! In this way we can actually pass either two arguments, or a pair, etc.. as
-        //arguments of the emplace function and get the result.
         template<class... Types>
         std::pair<iterator,bool> emplace(Types&&... args) {return insert(pair_type(std::forward<Types>(args)...));}; 
 
@@ -147,6 +136,8 @@ class bst{
         const_iterator find(const k& x) const noexcept; 
 
         void balance(); 
+        //This function has been used to debug the balance function.
+        bool isBalanced(node_type* x) noexcept; 
 
         v& operator[](const k& x) {
             auto it = find(x);
@@ -272,13 +263,15 @@ typename bst<k,v,c>::const_iterator bst<k,v,c>::cbegin() const noexcept{
 template <typename k, typename v, typename c>
 std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type& x){
     
+    std::cout << "L-Val insert" << std::endl;
+
     if (head == nullptr){
-        head = new node_type(x, nullptr);
+        head = std::make_unique<node_type>(x, nullptr);;
         return(std::make_pair(iterator(head.get()),true));
     }
     
     node_type* new_node = nullptr;  
-    node_type* tmp = head ;
+    auto tmp = head.get() ;
     
     while (tmp != nullptr){
         new_node = tmp;
@@ -290,20 +283,13 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(const pair_type
             return(std::make_pair(iterator(tmp),false)); //if the key is already exist 
     }
 
-    tmp = std::make_unique<node_type>(x, new_node);
+    tmp = new node_type(x, new_node);
     if (op(x.first,new_node->getValue().first))
         new_node->setLeft(tmp); 
     else
         new_node->setRight(tmp); 
      
     return(std::make_pair(iterator(tmp),true)); 
-}
-
-template <typename k, typename v, typename c>
-void bst<k,v,c>::insertOrUpdate(const pair_type& x){
-    auto tmp = insert(x);
-    if(!tmp.second)
-        (*(tmp.first)).second = x.second;
 }
 
 template <typename k, typename v, typename c>
@@ -324,7 +310,7 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
         else if (op(tmp->getValue().first,x.first))
             tmp = tmp->getRight();
         else 
-             return(std::pair<iterator, bool> (iterator(tmp),false)); //if the key is already exist
+             return(std::pair<iterator, bool> (iterator(tmp),false)); //if the key already exist
     }
     tmp = new node_type(std::move(x), new_node);
     if (op(x.first,new_node->getValue().first))
@@ -332,13 +318,6 @@ std::pair<typename bst<k,v,c>::iterator,bool> bst<k,v,c>::insert(pair_type&& x){
     else
         new_node->setRight(tmp);
     return(std::make_pair(iterator(tmp),true)); 
-}
-
-template <typename k, typename v, typename c>
-void bst<k,v,c>::insertOrUpdate(pair_type&& x){
-    auto tmp = insert(std::move(x));
-    if(!tmp.second)
-        (*(tmp.first)).second = x.second;
 }
 
 template <typename k, typename v, typename c>
@@ -378,9 +357,7 @@ void bst<k,v,c>::erase(const k& x){
 
     iterator p = find(x);
 
-    if(p == end()) { //if the key is not in the tree
-        std::cout<< "The tree doesn't have this key" << std::endl;
-    } else {
+    if (p != end()){
         auto current = p.getCurrent();
         auto left = current->getLeft();
         auto right = current->getRight();
@@ -487,7 +464,7 @@ void bst<k,v,c>::erase(const k& x){
             }
         }
     }
-    return;
+    
 }
 
 template <typename k, typename v, typename c>
@@ -502,11 +479,6 @@ void bst<k,v,c>::balance() {
     }
     clear(); //clear the bst
     balanceRec(values, values.size()); //re-built the balanced bst
-
-    if(isBalanced(head.get()))
-        std::cout << "The tree is now balanced - after checking numerically the property" << std::endl;
-    else
-        std::cout << "The tree is still NOT balanced - after checking numerically the property" << std::endl;
 }
 
 template <typename k, typename v, typename c>

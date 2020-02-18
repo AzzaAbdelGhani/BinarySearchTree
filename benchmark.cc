@@ -21,7 +21,7 @@ void balancedFind(const unsigned int &n, const unsigned int &rep, bst<int, int, 
 int main(){
 
     //Benchmark variables
-    constexpr unsigned int N = 5000;
+    constexpr unsigned int N = 500;
     constexpr unsigned int reps = 20;
 
     //This code provides a benchmark of our class bst with respect to the standard library implementation
@@ -43,57 +43,57 @@ int main(){
     std::cout << N << " unbalanced inserts on map" << std::endl;
     unbalancedRun<map>(N, reps, map1, method::insert);
 
-    std::cout << N << " unbalanced emplaces on bst" << std::endl;
-    unbalancedRun<bst>(N, reps, bst1, method::emplace);
+    // std::cout << N << " unbalanced emplaces on bst" << std::endl;
+    // unbalancedRun<bst>(N, reps, bst1, method::emplace);
 
-    std::cout << N << " unbalanced emplaces on map" << std::endl;
-    unbalancedRun<map>(N, reps, map1, method::emplace);
+    // std::cout << N << " unbalanced emplaces on map" << std::endl;
+    // unbalancedRun<map>(N, reps, map1, method::emplace);
 
-    std::cout << N << " unbalanced finds on bst" << std::endl;
-    unbalancedRun<bst>(N, reps, bst1, method::find);
+    // std::cout << N << " unbalanced finds on bst" << std::endl;
+    // unbalancedRun<bst>(N, reps, bst1, method::find);
 
-    std::cout << N << " unbalanced finds on map" << std::endl;
-    unbalancedRun<map>(N, reps, map1, method::find);
+    // std::cout << N << " unbalanced finds on map" << std::endl;
+    // unbalancedRun<map>(N, reps, map1, method::find);
 
-    std::cout << N << " unbalanced erase on bst" << std::endl;
-    unbalancedRun<bst>(N, reps, bst1, method::erase);
+    // std::cout << N << " unbalanced erase on bst" << std::endl;
+    // unbalancedRun<bst>(N, reps, bst1, method::erase);
 
-    std::cout << N << " unbalanced erase on map" << std::endl;
-    unbalancedRun<map>(N, reps, map1, method::erase);
+    // std::cout << N << " unbalanced erase on map" << std::endl;
+    // unbalancedRun<map>(N, reps, map1, method::erase);
 
-    //Random insert 
+    // //Random insert 
 
-    std::cout << N << " random inserts on bst" << std::endl;
-    randomRun<bst>(N, reps, bst1, method::insert);
+    // std::cout << N << " random inserts on bst" << std::endl;
+    // randomRun<bst>(N, reps, bst1, method::insert);
 
-    std::cout << N << " random inserts on map" << std::endl;
-    randomRun<map>(N, reps, map1, method::insert);
+    // std::cout << N << " random inserts on map" << std::endl;
+    // randomRun<map>(N, reps, map1, method::insert);
 
-    std::cout << N << " random emplaces on bst" << std::endl;
-    randomRun<bst>(N, reps, bst1, method::emplace);
+    // std::cout << N << " random emplaces on bst" << std::endl;
+    // randomRun<bst>(N, reps, bst1, method::emplace);
 
-    std::cout << N << " random emplaces on map" << std::endl;
-    randomRun<map>(N, reps, map1, method::emplace);
+    // std::cout << N << " random emplaces on map" << std::endl;
+    // randomRun<map>(N, reps, map1, method::emplace);
 
-    std::cout << N << " random finds on bst" << std::endl;
-    randomRun<bst>(N, reps, bst1, method::find);
+    // std::cout << N << " random finds on bst" << std::endl;
+    // randomRun<bst>(N, reps, bst1, method::find);
 
-    std::cout << N << " random finds on map" << std::endl;
-    randomRun<map>(N, reps, map1, method::find);
+    // std::cout << N << " random finds on map" << std::endl;
+    // randomRun<map>(N, reps, map1, method::find);
 
-    std::cout << N << " random erase on bst" << std::endl;
-    randomRun<bst>(N, reps, bst1, method::erase);
+    // std::cout << N << " random erase on bst" << std::endl;
+    // randomRun<bst>(N, reps, bst1, method::erase);
 
-    std::cout << N << " random erase on map" << std::endl;
-    randomRun<map>(N, reps, map1, method::erase);
+    // std::cout << N << " random erase on map" << std::endl;
+    // randomRun<map>(N, reps, map1, method::erase);
 
-    //We insert an unbalanced tree, balance it and then run find 
+    // //We insert an unbalanced tree, balance it and then run find 
 
-    std::cout << N << " balanced inserts on bst" << std::endl;
-    unbalancedRun(N, reps, bst1, method::insert);
+    // std::cout << N << " balanced inserts on bst" << std::endl;
+    // unbalancedRun(N, reps, bst1, method::insert);
 
-    std::cout << N << " balanced finds on bst" << std::endl;
-    balancedFind(N, reps, bst1);
+    // std::cout << N << " balanced finds on bst" << std::endl;
+    // balancedFind(N, reps, bst1);
 
 }
 

@@ -28,7 +28,7 @@ int main(){
         studentsTree.emplace("Bianchi","Bianchi");
         studentsTree.emplace(std::make_pair("Solomita","Solomita"));
         studentsTree.emplace(std::make_pair("Brand","Brand"));
-        studentsTree.emplace(std::make_pair("Abdalgh","Abdalgh"));
+        studentsTree.emplace(std::make_pair("Abdalghani","Abdalghani"));
         studentsTree.draw();
         std::cout << std::endl;
 

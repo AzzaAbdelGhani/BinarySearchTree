@@ -1,9 +1,9 @@
 # Advanced Programming Exam
 
-A binary search tree implementation, written in c++14 for the Advanced Programming Exam of DSSC Course 2019/20
+This is an implementation of a templated Binary Search Tree (BST) in C++14, benchmarked against the `std::map` implementation. In the repository you can find the directory include with the header file containing the definition of the BST (and also its implementation, see the section `Implementation choices`). You can also find two source files that can run the BST. In the `main.cc` there is a set of tests that covers all the possible cases of the BST functions. In the `benchmark.cc` you can find a comparison in between this implementation of BST and the one provided by the std library (`std::map`).
 
-
-In this project we implemented a templated Binary Search Tree (BST) in C++ and we benchmarked it against the `std::map` implementation. In the directory there are two main files: one to actually use our BST, and the other to test the performance. In order compile and run them, we wrote a MakeFile thanks to which you can run the commands `make` and `./bst`, for the tree, and `make benchmark` and `./benchmark` for the testing.
+In order compile and run them, there is a Makefile in the directory which allows you to compile both files.
+To compile and run the `main.cc` run `make` and `./bst`. To compile and run `benchmark.cc` run `make benchmark` and `./benchmark`.
 
 ### Concepts
 In our implementation we have three templated classes: one for the tree, one for the node and one for the iterator. Here a short description of them:
@@ -40,12 +40,19 @@ class _iterator {
 ```
 This last class allows us to iterate through the BST without extern any implemetation detail about his structure. The iterator is templated on the type of the node and on the value of it and it saves only a pointer to the current node.
 
-### Important choices
-There were important choices that we had to take at the beginning of the implementation:
+### Implementation choices
+There were important choices that had been taken at the beginning of the implementation:
 
-- First of all we decided to separate all the classes. This because they are templated and we want to generalize them as much as possible. For example, the BST class has templates on k,v and c, but we want the concept of node to be templated on just its value, that could be of whatever type, and we do not care about details concerning our specific implemenation of the BST. This would allow us to use the node class for another type of tree. Another reason it is the fact that we are avoiding to write too many templates in every implementation of the functions outside the classes.
+- First of all we decided to separate all the classes. There are advantages and disadvantages with this choice. We want to do this because if the classes were nested inside the BST, we would have to repeat the templates of the BST class for every function implementation of the nested classes. This would also mean that if we changed the BST templates we would need to modify all these functions. Moreover, in this way, the Node class is reusable on different types of BSTs.
+The main cons is that we are exposing the Iterator class as public, even though it is specific for our implemetation of the tree.
 
-- Another important choice was deciding the type of the pointers involved. In our opinion, the two children and the head could have been either unique or shared pointers, because in that way we do not have to worry about deleting them. We will never have two pointers to the same child or to the same head, therefore we chose unique. Instead, we decided to use a raw pointer to the parent, because it will be pointed from at least two other pointers. We could use a shared-pointer too, but we would have had problems when deleting nodes.
+- Another important choice was deciding the type of the pointers involved. In our opinion, the two children and the head could have been either unique or raw pointers. We ended up in choosing unique pointers bacause they allow us not to care about deallocation of the memory, even if we realised that the erase function became more complicated, due to the reallocation of the pointers. Instead, we were forced to use a raw pointer for the parent, because every node is a child of some other node (except from the head), therefore it is not possible to use unique ones.
+
+- We chose the iterator to be forward because the traversing of the tree is in order, therefore we do not need to go backward.
+
+- The implementation of the structure is entirely written in the header file because we have to deal with templated functions. If the implementations were separated from the definitions, the complier would complain about undefined reference.
+
+### Benchmark results
 
 
 
